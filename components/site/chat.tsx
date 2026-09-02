@@ -23,6 +23,7 @@ type ChatState = {
   used: string[];
   flow: "book" | null;
   step: number;
+  pending: boolean;
   booking: Record<string, string>;
   messages: Message[];
 };
@@ -64,6 +65,7 @@ const initialState: ChatState = {
   used: [],
   flow: null,
   step: 0,
+  pending: false,
   booking: {},
   messages: [
     {
@@ -116,50 +118,66 @@ function startBookingIn(state: ChatState, echoRequest: boolean): ChatState {
   return push(next, drafts);
 }
 
-function answerFreeText(state: ChatState, text: string): ChatState {
-  if (state.flow === "book") {
-    const { step } = state;
-    const booking = { ...state.booking, [bookingKeys[step]]: text };
-    if (step < 3) {
-      return push({ ...state, booking, step: step + 1 }, [
-        { from: "user", text },
-        { from: "bot", text: bookingPrompts[step + 1] },
-      ]);
-    }
-    const summary = `Thank you, ${booking.name ?? ""}. Here is what I have:\n\nName: ${booking.name ?? "—"}\nPhone: ${booking.phone ?? "—"}\nReason: ${booking.reason ?? "—"}\nPreferred time: ${booking.time ?? "—"}\n\nNothing is sent automatically from this chat. Use the Book Appointment button at the top of the page and we will open WhatsApp with these details ready to send to your branch — or call us now, ${callBothBranches}.`;
-    return push({ ...state, booking, flow: null, step: 0 }, [
+function advanceBooking(state: ChatState, text: string): ChatState {
+  const { step } = state;
+  const booking = { ...state.booking, [bookingKeys[step]]: text };
+  if (step < 3) {
+    return push({ ...state, booking, step: step + 1 }, [
       { from: "user", text },
-      { from: "bot", text: summary },
+      { from: "bot", text: bookingPrompts[step + 1] },
     ]);
   }
-
-  const t = text.toLowerCase();
-  if (/book|appoint|schedul|see (a|the) doctor/.test(t)) {
-    return startBookingIn(push(state, [{ from: "user", text }]), false);
-  }
-
-  let reply: string;
-  if (/hmo|insur|cover|axa|leadway|hygeia|clearline|princeton|hci/.test(t)) {
-    reply = answers.hmo.a;
-  } else if (/hour|open|close|time|sunday|weekend/.test(t)) {
-    reply = clinic.openingHours;
-  } else if (/where|locat|address|direction|ketu|iju|branch|map/.test(t)) {
-    reply = answers.where.a;
-  } else if (
-    /service|scan|lab|surgery|matern|physio|ent|urolog|gynae|ortho|consult/.test(t)
-  ) {
-    reply = answers.services.a;
-  } else if (
-    /pain|sick|fever|malaria|pregnan|symptom|treat|drug|medicine|diagnos|blood|hurt/.test(t)
-  ) {
-    reply = `I am not able to give medical advice over chat. The safest step is to see one of our doctors — I can book an appointment for you now, or you can call the clinic directly — ${callBothBranches}.`;
-  } else {
-    reply = `I may not have that one to hand. You can call the clinic — ${callBothBranches} — or email ${clinic.email}, and the team will answer properly. I can also book you an appointment if that would help.`;
-  }
-  return push(state, [
+  const summary = `Thank you, ${booking.name ?? ""}. Here is what I have:\n\nName: ${booking.name ?? "—"}\nPhone: ${booking.phone ?? "—"}\nReason: ${booking.reason ?? "—"}\nPreferred time: ${booking.time ?? "—"}\n\nNothing is sent automatically from this chat. Use the Book Appointment button at the top of the page and we will open WhatsApp with these details ready to send to your branch — or call us now, ${callBothBranches}.`;
+  return push({ ...state, booking, flow: null, step: 0 }, [
     { from: "user", text },
-    { from: "bot", text: reply },
+    { from: "bot", text: summary },
   ]);
+}
+
+function isBookingRequest(text: string) {
+  return /book|appoint|schedul|see (a|the) doctor/.test(text.toLowerCase());
+}
+
+function offlineReply(text: string): string {
+  const t = text.toLowerCase();
+  if (/hmo|insur|cover|axa|leadway|hygeia|clearline|princeton|hci/.test(t)) {
+    return answers.hmo.a;
+  }
+  if (/hour|open|close|time|sunday|weekend/.test(t)) {
+    return clinic.openingHours;
+  }
+  if (/where|locat|address|direction|ketu|iju|branch|map/.test(t)) {
+    return answers.where.a;
+  }
+  if (/service|scan|lab|surgery|matern|physio|ent|urolog|gynae|ortho|consult/.test(t)) {
+    return answers.services.a;
+  }
+  if (/pain|sick|fever|malaria|pregnan|symptom|treat|drug|medicine|diagnos|blood|hurt/.test(t)) {
+    return `I am not able to give medical advice over chat. The safest step is to see one of our doctors — I can book an appointment for you now, or you can call the clinic directly — ${callBothBranches}.`;
+  }
+  return `I may not have that one to hand. You can call the clinic — ${callBothBranches} — or email ${clinic.email}, and the team will answer properly. I can also book you an appointment if that would help.`;
+}
+
+async function askAssistant(history: Message[], text: string): Promise<string> {
+  const messages = history
+    .slice(-8)
+    .map((m) => ({
+      role: m.from === "bot" ? "assistant" : "user",
+      content: m.text,
+    }))
+    .concat({ role: "user", content: text });
+
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages }),
+  });
+  if (!res.ok) throw new Error("assistant unavailable");
+  const data = await res.json();
+  if (typeof data?.reply !== "string" || !data.reply.trim()) {
+    throw new Error("assistant unavailable");
+  }
+  return data.reply.trim();
 }
 
 const ChatContext = createContext<((intent?: ChatIntent) => void) | null>(null);
@@ -177,7 +195,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const el = logRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [state.messages, state.open]);
+  }, [state.messages, state.pending, state.open]);
 
   const openChat = useCallback((intent?: ChatIntent) => {
     setState((s) => {
@@ -188,28 +206,49 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const quickReplies: { key: string; label: string; onClick: () => void }[] = state.flow
-    ? []
-    : (["hmo", "services", "where", "hours"] as AnswerKey[])
-        .filter((key) => !state.used.includes(key))
-        .map((key) => ({
+  const atWelcome = !state.flow && !state.messages.some((m) => m.from === "user");
+  const quickReplies = atWelcome
+    ? [
+        ...(["hmo", "services", "where", "hours"] as AnswerKey[]).map((key) => ({
           key,
           label: answers[key].label,
           onClick: () => setState((s) => askIn(s, key)),
-        }));
-  if (!state.flow && !state.used.includes("book")) {
-    quickReplies.push({
-      key: "book",
-      label: "Book an appointment",
-      onClick: () => setState((s) => startBookingIn(s, true)),
-    });
-  }
+        })),
+        {
+          key: "book",
+          label: "Book an appointment",
+          onClick: () => setState((s) => startBookingIn(s, true)),
+        },
+      ]
+    : [];
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const text = state.input.trim();
-    if (!text) return;
-    setState((s) => answerFreeText({ ...s, input: "" }, text));
+    if (!text || state.pending) return;
+
+    if (state.flow === "book") {
+      setState((s) => advanceBooking({ ...s, input: "" }, text));
+      return;
+    }
+
+    if (isBookingRequest(text)) {
+      setState((s) =>
+        startBookingIn(push({ ...s, input: "" }, [{ from: "user", text }]), false),
+      );
+      return;
+    }
+
+    const history = state.messages;
+    setState((s) => push({ ...s, input: "", pending: true }, [{ from: "user", text }]));
+
+    let reply: string;
+    try {
+      reply = await askAssistant(history, text);
+    } catch {
+      reply = offlineReply(text);
+    }
+    setState((s) => push({ ...s, pending: false }, [{ from: "bot", text: reply }]));
   };
 
   return (
@@ -247,6 +286,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                   )}
                 </div>
               ))}
+              {state.pending && (
+                <div
+                  role="status"
+                  aria-label="Assistant is typing"
+                  className="flex max-w-[86%] items-center gap-1.5 self-start border border-ink/15 bg-fog px-3.5 py-3.5"
+                >
+                  <span className="size-1.5 animate-bounce rounded-full bg-moss [animation-delay:-0.3s]" />
+                  <span className="size-1.5 animate-bounce rounded-full bg-moss [animation-delay:-0.15s]" />
+                  <span className="size-1.5 animate-bounce rounded-full bg-moss" />
+                </div>
+              )}
             </div>
 
             <div className="flex flex-none flex-col gap-2.5 border-t border-ink/15 px-3 pt-3 pb-3.5">
@@ -274,7 +324,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                 />
                 <button
                   type="submit"
-                  className="h-11 flex-none border border-pine px-4 text-[15px] font-bold text-pine hover:bg-pine/10"
+                  disabled={state.pending}
+                  className="h-11 flex-none border border-pine px-4 text-[15px] font-bold text-pine hover:bg-pine/10 disabled:opacity-50"
                 >
                   Send
                 </button>

@@ -7,7 +7,7 @@ export const clinic = {
   email: "dejiclinic2005@yahoo.com",
   directorLine: { label: "0803 307 2123", href: "tel:08033072123" },
   openingHours:
-    "Monday to Saturday, 8:00am – 8:00pm. Sundays, 10:00am – 6:00pm. Emergencies and maternity are attended to 24 hours at both branches.",
+    "Open 24 hours a day, 7 days a week at both branches — including emergencies and maternity.",
   hmoCount: "70+",
 } as const;
 
