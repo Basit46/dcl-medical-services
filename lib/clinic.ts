@@ -57,17 +57,61 @@ export const branches: Branch[] = [
 ];
 
 export const services = [
-  { num: "01", name: "General Practice", desc: "Day-to-day consultation, treatment and follow-up for adults and children." },
-  { num: "02", name: "Maternity", desc: "Antenatal care, delivery and postnatal checks with resident midwives." },
-  { num: "03", name: "Scan", desc: "Ultrasound scans including obstetric, abdominal and pelvic." },
-  { num: "04", name: "Lab", desc: "On-site laboratory for blood work, cultures and routine screening." },
-  { num: "05", name: "Surgery", desc: "Minor and general surgical procedures in our theatre." },
-  { num: "06", name: "Orthopaedics", desc: "Bone, joint and injury care, from fractures to chronic pain." },
-  { num: "07", name: "Gynaecology", desc: "Women's health, from routine checks to specialist referral." },
-  { num: "08", name: "Urology", desc: "Kidney, bladder and prostate assessment and treatment." },
-  { num: "09", name: "ENT", desc: "Ear, nose and throat consultation for all ages." },
-  { num: "10", name: "Physiotherapy", desc: "Rehabilitation after injury, surgery or stroke." },
-  { num: "11", name: "General Consult", desc: "Talk through a concern with a doctor before deciding on care." },
+  {
+    num: "01",
+    name: "General Practice",
+    desc: "Day-to-day consultation, treatment and follow-up for adults and children.",
+  },
+  {
+    num: "02",
+    name: "Maternity",
+    desc: "Antenatal care, delivery and postnatal checks with resident midwives.",
+  },
+  {
+    num: "03",
+    name: "Scan",
+    desc: "Ultrasound scans including obstetric, abdominal and pelvic.",
+  },
+  {
+    num: "04",
+    name: "Lab",
+    desc: "On-site laboratory for blood work, cultures and routine screening.",
+  },
+  {
+    num: "05",
+    name: "Surgery",
+    desc: "Minor and general surgical procedures in our theatre.",
+  },
+  {
+    num: "06",
+    name: "Orthopaedics",
+    desc: "Bone, joint and injury care, from fractures to chronic pain.",
+  },
+  {
+    num: "07",
+    name: "Gynaecology",
+    desc: "Women's health, from routine checks to specialist referral.",
+  },
+  {
+    num: "08",
+    name: "Urology",
+    desc: "Kidney, bladder and prostate assessment and treatment.",
+  },
+  {
+    num: "09",
+    name: "ENT",
+    desc: "Ear, nose and throat consultation for all ages.",
+  },
+  {
+    num: "10",
+    name: "Physiotherapy",
+    desc: "Rehabilitation after injury, surgery or stroke.",
+  },
+  {
+    num: "11",
+    name: "General Consult",
+    desc: "Talk through a concern with a doctor before deciding on care.",
+  },
 ];
 
 export const hmoPlans = [
@@ -95,7 +139,7 @@ export const testimonials = [
   {
     quote:
       "I delivered both of my babies at Deji Clinic. The midwives stayed with me through the night. I could not have asked for better care.",
-    who: "Bisi A. · Maternity",
+    who: "Bisi A. · Ketu branch",
   },
 ];
 

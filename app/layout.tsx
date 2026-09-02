@@ -3,6 +3,7 @@ import { Atkinson_Hyperlegible, Frank_Ruhl_Libre } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { clinic, site } from "@/lib/clinic";
+import { Analytics } from "@vercel/analytics/next";
 
 const frankRuhlLibre = Frank_Ruhl_Libre({
   subsets: ["latin"],
@@ -93,6 +94,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-paper font-body text-ink">
         {children}
+
+        <Analytics />
       </body>
     </html>
   );
