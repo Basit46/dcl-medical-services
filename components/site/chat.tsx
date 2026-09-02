@@ -10,6 +10,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { BookingDialog } from "@/components/site/booking-dialog";
 import { callBothBranches, clinic } from "@/lib/clinic";
 
 type Message = { id: number; from: "bot" | "user"; text: string };
@@ -50,6 +51,9 @@ const answers: Record<AnswerKey, { label: string; q: string; a: string }> = {
     a: clinic.openingHours,
   },
 };
+
+const quickReplyClass =
+  "min-h-11 border border-pine/70 px-3.5 py-3 text-left text-sm font-bold text-pine hover:bg-pine/10";
 
 const bookingPrompts = [
   "What is your full name?",
@@ -208,18 +212,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const atWelcome = !state.flow && !state.messages.some((m) => m.from === "user");
   const quickReplies = atWelcome
-    ? [
-        ...(["hmo", "services", "where", "hours"] as AnswerKey[]).map((key) => ({
-          key,
-          label: answers[key].label,
-          onClick: () => setState((s) => askIn(s, key)),
-        })),
-        {
-          key: "book",
-          label: "Book an appointment",
-          onClick: () => setState((s) => startBookingIn(s, true)),
-        },
-      ]
+    ? (["hmo", "services", "where", "hours"] as AnswerKey[]).map((key) => ({
+        key,
+        label: answers[key].label,
+        onClick: () => setState((s) => askIn(s, key)),
+      }))
     : [];
 
   const onSubmit = async (e: FormEvent) => {
@@ -300,18 +297,23 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             </div>
 
             <div className="flex flex-none flex-col gap-2.5 border-t border-ink/15 px-3 pt-3 pb-3.5">
-              {quickReplies.length > 0 && (
+              {atWelcome && (
                 <div className="flex flex-wrap gap-2">
                   {quickReplies.map((q) => (
                     <button
                       key={q.key}
                       type="button"
                       onClick={q.onClick}
-                      className="min-h-11 border border-pine/70 px-3.5 py-3 text-left text-sm font-bold text-pine hover:bg-pine/10"
+                      className={quickReplyClass}
                     >
                       {q.label}
                     </button>
                   ))}
+                  <BookingDialog>
+                    <button type="button" className={quickReplyClass}>
+                      Book an appointment
+                    </button>
+                  </BookingDialog>
                 </div>
               )}
               <form onSubmit={onSubmit} className="flex items-center gap-2">
