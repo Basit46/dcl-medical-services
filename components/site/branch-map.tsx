@@ -29,11 +29,14 @@ export function BranchMap() {
         className: "",
         iconSize: [22, 22],
         iconAnchor: [11, 11],
-        html: '<div style="width:22px;height:22px;border-radius:50%;background:#2F5D57;border:3px solid #FAFBF7;box-shadow:0 1px 4px rgba(31,61,51,0.45)"></div>',
+        html: '<div style="width:22px;height:22px;border-radius:50%;background:#1D6AC8;border:3px solid #EFF6FF;box-shadow:0 1px 4px rgba(20,58,107,0.45)"></div>',
       });
 
       const points = branches.map((branch) => {
-        const marker = L.marker(branch.position, { icon, title: branch.name }).addTo(map);
+        const marker = L.marker(branch.position, {
+          icon,
+          title: branch.name,
+        }).addTo(map);
         marker.bindPopup(
           `<div style="font-size:13px;line-height:1.6"><strong style="font-size:16px">${branch.name} branch</strong><br>${branch.address}<br><a href="${branch.tel.href}">${branch.tel.label}</a></div>`,
         );

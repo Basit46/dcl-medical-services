@@ -2,22 +2,12 @@ import { BookingDialog } from "@/components/site/booking-dialog";
 import { ChatTrigger } from "@/components/site/chat";
 import { branches, clinic } from "@/lib/clinic";
 
-const highlights = [
-  "General Practice",
-  "Maternity",
-  "Scan",
-  "Lab",
-  "Surgery",
-  "Walk-ins welcome",
-];
+const highlights = clinic.clientTypes;
 
 export function Hero() {
   return (
-    <section
-      id="top"
-      className="border-b border-ink/15 bg-linear-to-b from-mist to-paper"
-    >
-      <div className="mx-auto grid max-w-[1080px] grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-start gap-12 px-5 pt-15 pb-14">
+    <section id="top" className="border-b border-ink/15 bg-surface">
+      <div className="mx-auto grid max-w-[1250px] grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-start gap-12 px-5 pt-15 pb-14">
         <div>
           <h1 className="m-0 mb-[22px] max-w-[14ch] font-display text-[clamp(38px,8.5vw,56px)] leading-[1.03] font-normal tracking-[-0.02em] text-forest">
             A clinic your family can trust.
@@ -28,15 +18,14 @@ export function Hero() {
           </p>
 
           <p className="m-0 mb-8 max-w-[46ch] text-[17px] leading-[1.75] text-pretty text-slate">
-            General practice, maternity, laboratory, scan and surgery under one
-            roof — with over 70 HMO plans accepted at both branches.
+            {clinic.careDescription}
           </p>
 
           <div className="flex flex-wrap gap-3">
             <BookingDialog>
               <button
                 type="button"
-                className="inline-flex min-h-[50px] items-center border border-gold bg-gold px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-ink hover:bg-gold-deep"
+                className="inline-flex min-h-[50px] items-center border border-gold bg-gold px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-white hover:bg-gold-deep"
               >
                 Book Appointment
               </button>
@@ -60,7 +49,7 @@ export function Hero() {
         </div>
 
         <div className="border border-ink/15">
-          <div className="flex items-baseline gap-3 border-b border-ink/12 bg-gold/15 px-[22px] py-5">
+          <div className="flex items-baseline gap-3 border-b border-ink/12 bg-primary-50 px-[22px] py-5">
             <span className="tnum text-[34px] leading-none text-forest">
               {clinic.hmoCount}
             </span>

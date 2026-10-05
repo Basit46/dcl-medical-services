@@ -1,7 +1,26 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
-import { Dialog } from "radix-ui";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { branches, clinic, hmoPlans, services } from "@/lib/clinic";
 
 type BookingForm = {
@@ -48,8 +67,15 @@ function formatTime(value: string) {
   const parsed = new Date(`1970-01-01T${value}`);
   if (Number.isNaN(parsed.getTime())) return value;
   return parsed
-    .toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit", hour12: true })
-    .replace(/\s?([ap])m/i, (_, meridiem: string) => ` ${meridiem.toLowerCase()}m`);
+    .toLocaleTimeString("en-GB", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(
+      /\s?([ap])m/i,
+      (_, meridiem: string) => ` ${meridiem.toLowerCase()}m`,
+    );
 }
 
 function buildWhatsappUrl(form: BookingForm) {
@@ -69,14 +95,21 @@ function buildWhatsappUrl(form: BookingForm) {
   return `https://wa.me/${branch.whatsapp}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
 
-const labelClass = "text-[11px] tracking-[0.18em] uppercase text-sage";
-const fieldClass =
-  "min-h-11 w-full border border-ink/25 bg-paper px-3 py-2.5 text-[15px] text-ink outline-none focus-visible:border-pine";
-
-export function BookingDialog({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+export function BookingDialog({
+  children,
+  open: controlledOpen,
+  onOpenChange: onControlledOpenChange,
+}: {
+  children?: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
   const [form, setForm] = useState(emptyForm);
-  const [errors, setErrors] = useState<Partial<Record<keyof BookingForm, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof BookingForm, string>>
+  >({});
   const [sentUrl, setSentUrl] = useState<string | null>(null);
 
   const branch = branches.find((b) => b.id === form.branchId) ?? branches[0];
@@ -87,7 +120,8 @@ export function BookingDialog({ children }: { children: ReactNode }) {
   };
 
   const onOpenChange = (next: boolean) => {
-    setOpen(next);
+    if (controlledOpen === undefined) setInternalOpen(next);
+    onControlledOpenChange?.(next);
     if (!next) {
       setForm(emptyForm);
       setErrors({});
@@ -110,200 +144,216 @@ export function BookingDialog({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-100 bg-ink/55 backdrop-blur-[2px]" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-100 flex max-h-[calc(100dvh-32px)] w-[min(560px,calc(100vw-24px))] -translate-x-1/2 -translate-y-1/2 animate-rise flex-col overflow-hidden border border-ink/30 bg-surface shadow-panel">
-          <div className="flex flex-none items-start justify-between gap-4 bg-forest px-5 py-4 text-surface sm:px-6">
-            <div>
-              <Dialog.Title className="m-0 font-display text-[26px] leading-tight font-normal text-surface">
-                Book an appointment
-              </Dialog.Title>
-              <Dialog.Description className="mt-1 text-[13px] leading-[1.6] text-cream">
-                Fill this in and we will open WhatsApp with your details ready to send to the{" "}
-                {branch.name} front desk.
-              </Dialog.Description>
-            </div>
-            <Dialog.Close
-              aria-label="Close"
-              className="size-8 flex-none border border-white/30 text-base leading-none text-surface hover:bg-white/10"
-            >
-              ×
-            </Dialog.Close>
-          </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+      <DialogContent>
+        <DialogHeader className="flex-none border-b border-border bg-primary-50 px-5 py-5 pr-14 sm:px-6">
+          <DialogTitle className="font-display text-[26px] leading-tight font-normal text-primary-900">
+            Book an appointment
+          </DialogTitle>
+          <DialogDescription className="text-[13px] leading-[1.6] text-primary-800">
+            Fill this in and we will open WhatsApp with your details ready to
+            send to the {branch.name} front desk.
+          </DialogDescription>
+        </DialogHeader>
 
-          {sentUrl ? (
-            <div className="flex flex-col gap-4 px-5 py-8 sm:px-6">
-              <p className="m-0 text-[15.5px] leading-[1.7] text-slate">
-                WhatsApp should be opening in a new tab with your request to the{" "}
-                <strong>{branch.name}</strong> branch on {branch.tel.label}. Press send there and
-                the front desk will confirm your slot.
-              </p>
-              <a
-                href={sentUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-12 items-center justify-center border border-gold bg-gold px-6 text-[17px] font-bold text-ink no-underline hover:bg-gold-deep"
-              >
+        {sentUrl ? (
+          <div className="flex flex-col gap-4 px-5 py-8 sm:px-6">
+            <p className="m-0 text-[15.5px] leading-[1.7] text-slate">
+              WhatsApp should be opening in a new tab with your request to the{" "}
+              <strong>{branch.name}</strong> branch on {branch.tel.label}. Press
+              send there and the front desk will confirm your slot.
+            </p>
+            <Button asChild size="lg" className="h-12 text-base">
+              <a href={sentUrl} target="_blank" rel="noopener noreferrer">
                 Open WhatsApp again
               </a>
-              <p className="m-0 text-[13px] leading-[1.7] text-moss">
-                Nothing happened? Your browser may have blocked the new tab — use the button
-                above, or call {branch.name} on{" "}
-                <a href={branch.tel.href} className="tnum text-pine">
-                  {branch.tel.label}
-                </a>
-                .
-              </p>
-            </div>
-          ) : (
-            <form
-              onSubmit={onSubmit}
-              className="flex flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6"
-            >
-              <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-                <legend className={labelClass}>Which branch?</legend>
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2">
-                  {branches.map((option) => (
-                    <label
-                      key={option.id}
-                      className={`flex cursor-pointer flex-col gap-1 border p-3.5 ${
-                        form.branchId === option.id
-                          ? "border-pine bg-pine/8"
-                          : "border-ink/20 hover:border-pine/60"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="branch"
-                        value={option.id}
-                        checked={form.branchId === option.id}
-                        onChange={() => set("branchId", option.id)}
-                        className="sr-only"
-                      />
-                      <span className="text-base font-bold text-ink">{option.name}</span>
+            </Button>
+            <p className="m-0 text-[13px] leading-[1.7] text-moss">
+              Nothing happened? Your browser may have blocked the new tab — use
+              the button above, or call {branch.name} on{" "}
+              <a href={branch.tel.href} className="tnum text-pine">
+                {branch.tel.label}
+              </a>
+              .
+            </p>
+          </div>
+        ) : (
+          <form
+            onSubmit={onSubmit}
+            className="flex flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6"
+          >
+            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+              <legend className="mb-2 text-sm font-semibold text-ink">
+                Which branch?
+              </legend>
+              <RadioGroup
+                aria-label="Which branch?"
+                value={form.branchId}
+                onValueChange={(value) => set("branchId", value)}
+                className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2"
+              >
+                {branches.map((option) => (
+                  <Label
+                    key={option.id}
+                    className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 transition-colors ${
+                      form.branchId === option.id
+                        ? "border-primary-600 bg-primary-50"
+                        : "border-border hover:border-primary-400"
+                    }`}
+                  >
+                    <RadioGroupItem value={option.id} className="mt-0.5" />
+                    <span className="flex flex-col gap-1">
+                      <span className="text-base font-bold text-ink">
+                        {option.name}
+                      </span>
                       <span className="text-[12.5px] leading-[1.5] text-moss">
                         {option.address}
                       </span>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
+                    </span>
+                  </Label>
+                ))}
+              </RadioGroup>
+            </fieldset>
 
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
-                <label className="flex flex-col gap-1.5">
-                  <span className={labelClass}>Full name</span>
-                  <input
-                    value={form.name}
-                    onChange={(e) => set("name", e.target.value)}
-                    autoComplete="name"
-                    className={fieldClass}
-                  />
-                  {errors.name && <span className="text-[12.5px] text-red-700">{errors.name}</span>}
-                </label>
-
-                <label className="flex flex-col gap-1.5">
-                  <span className={labelClass}>Phone number</span>
-                  <input
-                    value={form.phone}
-                    onChange={(e) => set("phone", e.target.value)}
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    placeholder="0803 000 0000"
-                    className={fieldClass}
-                  />
-                  {errors.phone && (
-                    <span className="text-[12.5px] text-red-700">{errors.phone}</span>
-                  )}
-                </label>
-              </div>
-
-              <label className="flex flex-col gap-1.5">
-                <span className={labelClass}>What do you need?</span>
-                <select
-                  value={form.service}
-                  onChange={(e) => set("service", e.target.value)}
-                  className={fieldClass}
-                >
-                  {services.map((service) => (
-                    <option key={service.num} value={service.name}>
-                      {service.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
-                <label className="flex flex-col gap-1.5">
-                  <span className={labelClass}>Preferred date</span>
-                  <input
-                    value={form.date}
-                    onChange={(e) => set("date", e.target.value)}
-                    type="date"
-                    min={new Date().toISOString().slice(0, 10)}
-                    className={fieldClass}
-                  />
-                  {errors.date && <span className="text-[12.5px] text-red-700">{errors.date}</span>}
-                </label>
-
-                <label className="flex flex-col gap-1.5">
-                  <span className={labelClass}>Preferred time</span>
-                  <input
-                    value={form.time}
-                    onChange={(e) => set("time", e.target.value)}
-                    type="time"
-                    className={fieldClass}
-                  />
-                  {errors.time && <span className="text-[12.5px] text-red-700">{errors.time}</span>}
-                </label>
-              </div>
-
-              <p className="m-0 -mt-2 text-[12.5px] leading-[1.6] text-moss">
-                {clinic.openingHours}
-              </p>
-
-              <label className="flex flex-col gap-1.5">
-                <span className={labelClass}>HMO plan (optional)</span>
-                <input
-                  value={form.hmo}
-                  onChange={(e) => set("hmo", e.target.value)}
-                  list="dcl-hmo-plans"
-                  placeholder="e.g. AXA Mansard"
-                  className={fieldClass}
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+              <Label className="flex flex-col items-start gap-1.5">
+                <span className="text-sm font-medium text-ink">Full name</span>
+                <Input
+                  value={form.name}
+                  onChange={(e) => set("name", e.target.value)}
+                  autoComplete="name"
+                  aria-invalid={Boolean(errors.name)}
                 />
-                <datalist id="dcl-hmo-plans">
-                  {hmoPlans.map((plan) => (
-                    <option key={plan} value={plan} />
-                  ))}
-                </datalist>
-              </label>
+                {errors.name && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.name}
+                  </span>
+                )}
+              </Label>
 
-              <label className="flex flex-col gap-1.5">
-                <span className={labelClass}>Anything else? (optional)</span>
-                <textarea
-                  value={form.notes}
-                  onChange={(e) => set("notes", e.target.value)}
-                  rows={3}
-                  placeholder="A short note about what you need to see the doctor for."
-                  className={`${fieldClass} min-h-[88px] resize-y`}
+              <Label className="flex flex-col items-start gap-1.5">
+                <span className="text-sm font-medium text-ink">
+                  Phone number
+                </span>
+                <Input
+                  value={form.phone}
+                  onChange={(e) => set("phone", e.target.value)}
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="0803 000 0000"
+                  aria-invalid={Boolean(errors.phone)}
                 />
-              </label>
+                {errors.phone && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.phone}
+                  </span>
+                )}
+              </Label>
+            </div>
 
-              <button
-                type="submit"
-                className="min-h-12.5 border border-gold bg-gold px-6 text-[17px] font-bold text-ink hover:bg-gold-deep"
+            <Label className="flex flex-col items-start gap-1.5">
+              <span className="text-sm font-medium text-ink">
+                What do you need?
+              </span>
+              <Select
+                value={form.service}
+                onValueChange={(value) => set("service", value)}
               >
-                Send on WhatsApp
-              </button>
-              <p className="m-0 text-center text-[12.5px] leading-[1.6] text-moss">
-                Please do not share medical details you would rather discuss in person.
-              </p>
-            </form>
-          )}
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+                <SelectTrigger aria-label="What do you need?">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {services.map((service) => (
+                    <SelectItem key={service.num} value={service.name}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Label>
+
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+              <Label className="flex flex-col items-start gap-1.5">
+                <span className="text-sm font-medium text-ink">
+                  Preferred date
+                </span>
+                <Input
+                  value={form.date}
+                  onChange={(e) => set("date", e.target.value)}
+                  type="date"
+                  min={new Date().toISOString().slice(0, 10)}
+                  aria-invalid={Boolean(errors.date)}
+                />
+                {errors.date && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.date}
+                  </span>
+                )}
+              </Label>
+
+              <Label className="flex flex-col items-start gap-1.5">
+                <span className="text-sm font-medium text-ink">
+                  Preferred time
+                </span>
+                <Input
+                  value={form.time}
+                  onChange={(e) => set("time", e.target.value)}
+                  type="time"
+                />
+                {errors.time && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.time}
+                  </span>
+                )}
+              </Label>
+            </div>
+
+            <p className="m-0 -mt-2 text-[12.5px] leading-[1.6] text-moss">
+              {clinic.openingHours}
+            </p>
+
+            <Label className="flex flex-col items-start gap-1.5">
+              <span className="text-sm font-medium text-ink">
+                HMO plan (optional)
+              </span>
+              <Input
+                value={form.hmo}
+                onChange={(e) => set("hmo", e.target.value)}
+                list="dcl-hmo-plans"
+                placeholder="e.g. AXA Mansard"
+              />
+              <datalist id="dcl-hmo-plans">
+                {hmoPlans.map((plan) => (
+                  <option key={plan} value={plan} />
+                ))}
+              </datalist>
+            </Label>
+
+            <Label className="flex flex-col items-start gap-1.5">
+              <span className="text-sm font-medium text-ink">
+                Anything else? (optional)
+              </span>
+              <Textarea
+                value={form.notes}
+                onChange={(e) => set("notes", e.target.value)}
+                rows={3}
+                placeholder="A short note about what you need to see the doctor for."
+                className="min-h-[88px] resize-y"
+              />
+            </Label>
+
+            <Button type="submit" size="lg" className="h-12 text-base">
+              Send on WhatsApp
+            </Button>
+            <p className="m-0 text-center text-[12.5px] leading-[1.6] text-moss">
+              Please do not share medical details you would rather discuss in
+              person.
+            </p>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

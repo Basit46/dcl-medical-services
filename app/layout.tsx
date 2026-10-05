@@ -4,6 +4,8 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { clinic, site } from "@/lib/clinic";
 import { Analytics } from "@vercel/analytics/next";
+import { AnnouncementBanner } from "@/components/site/announcement-banner";
+import { getActiveAnnouncement } from "@/sanity/lib/announcement";
 
 const frankRuhlLibre = Frank_Ruhl_Libre({
   subsets: ["latin"],
@@ -76,13 +78,15 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F3F5EF" },
-    { media: "(prefers-color-scheme: dark)", color: "#1F3D33" },
+    { media: "(prefers-color-scheme: light)", color: "#EFF6FF" },
+    { media: "(prefers-color-scheme: dark)", color: "#143A6B" },
   ],
   colorScheme: "light",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const announcement = await getActiveAnnouncement();
+
   return (
     <html
       lang="en-NG"
@@ -93,6 +97,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <body className="min-h-full flex flex-col bg-paper font-body text-ink">
+        <AnnouncementBanner announcement={announcement} />
         {children}
 
         <Analytics />

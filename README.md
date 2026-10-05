@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DCL Medical Services website
 
-## Getting Started
+## Articles and Sanity Studio
 
-First, run the development server:
+The article section is connected to Sanity and supports an embedded editorial studio at `/studio`.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 1. Create a Sanity project
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a project in the [Sanity management console](https://www.sanity.io/manage), then note its project ID and dataset name. The default dataset name is `production`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Configure environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env.local` and set:
 
-## Learn More
+- `NEXT_PUBLIC_SANITY_PROJECT_ID` — the project ID from Sanity.
+- `NEXT_PUBLIC_SANITY_DATASET` — usually `production`.
+- `NEXT_PUBLIC_SANITY_API_VERSION` — the API version date; the checked-in default is `2025-02-19`.
 
-To learn more about Next.js, take a look at the following resources:
+Project ID and dataset are public identifiers, not secrets. Published articles can be read without a token when the dataset is public. Do not put an editor token in a `NEXT_PUBLIC_` variable.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+In the Sanity project settings, add the local site origin (`http://localhost:3000`) and your deployed site origin to the project's CORS origins. Enable credentials for these origins so editors can sign in to the embedded Studio.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Start the website and Studio
 
-## Deploy on Vercel
+Run `npm run dev`, open the site, then visit `/studio`. Sign in with a Sanity account that has access to the configured project. From the Studio, create and publish Article documents.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The Article form is kept simple: title, short introduction, publication date, optional main photo, and article content. The article address is generated from its title. Category, reading time, and image alt-text fields are not required from the editor.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The Announcement banner form only asks for a heading, message, whether it should show, and how long it should remain visible (24 hours, 3 days, 7 days, 1 month, or indefinitely). On the site it appears as a modal popup. The newest announcement replaces all older ones. Turn off the newest announcement or leave its heading/message empty to show no popup; older announcements will not reappear. Visitors can close the popup for the current page session; it appears again on reload while still active.
+
+### 4. Publishing behavior
+
+The public article index and detail pages query published Sanity articles. The newest active announcement is checked site-wide. Content is cached for 60 seconds. If Sanity is not configured, temporarily unavailable, or has no published articles yet, the current local example articles remain visible. Remove or update those examples in `lib/articles.ts` when the Sanity dataset has the intended launch content.
+
+### Project commands
+
+- `npm run dev` — start local development.
+- `npm run lint` — run ESLint.
+- `npm run build` — create a production build.

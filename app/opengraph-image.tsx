@@ -17,79 +17,83 @@ export default async function OpenGraphImage() {
   ]);
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          background: "#1F3D33",
-          color: "#FAFBF7",
-          fontFamily: "Atkinson",
-          padding: "68px 76px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div style={{ width: 56, height: 2, background: "#D9A441" }} />
-          <div
-            style={{
-              fontSize: 22,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: "#D9A441",
-            }}
-          >
-            {clinic.legalName}
-          </div>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        background: "#164885",
+        color: "#EFF6FF",
+        fontFamily: "Atkinson",
+        padding: "68px 76px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+        <div style={{ width: 56, height: 2, background: "#2F7DE1" }} />
+        <div
+          style={{
+            fontSize: 22,
+            letterSpacing: "0.28em",
+            textTransform: "uppercase",
+            color: "#93C5FD",
+          }}
+        >
+          {clinic.legalName}
         </div>
+      </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-          <div
-            style={{
-              fontFamily: "FrankRuhl",
-              fontSize: 92,
-              lineHeight: 1.04,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            {clinic.name}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 20,
-              fontSize: 40,
-              color: "#D9A441",
-              letterSpacing: "0.03em",
-            }}
-          >
-            <div style={{ width: 4, height: 46, background: "#D9A441" }} />
-            {clinic.tagline}
-          </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+        <div
+          style={{
+            fontFamily: "FrankRuhl",
+            fontSize: 92,
+            lineHeight: 1.04,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {clinic.name}
         </div>
-
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            gap: 32,
-            borderTop: "1px solid rgba(255,255,255,0.22)",
-            paddingTop: 30,
-            fontSize: 26,
-            color: "#CBD8CC",
+            gap: 20,
+            fontSize: 40,
+            color: "#93C5FD",
+            letterSpacing: "0.03em",
           }}
         >
-          <div style={{ display: "flex" }}>Ketu · Iju Ishaga, Lagos</div>
-          <div style={{ display: "flex", fontFamily: "AtkinsonBold", color: "#FAFBF7" }}>
-            {clinic.hmoCount} HMO plans accepted
-          </div>
+          <div style={{ width: 4, height: 46, background: "#2F7DE1" }} />
+          {clinic.tagline}
         </div>
       </div>
-    ),
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 32,
+          borderTop: "1px solid rgba(255,255,255,0.22)",
+          paddingTop: 30,
+          fontSize: 26,
+          color: "#DBEAFE",
+        }}
+      >
+        <div style={{ display: "flex" }}>Ketu · Iju Ishaga, Lagos</div>
+        <div
+          style={{
+            display: "flex",
+            fontFamily: "AtkinsonBold",
+            color: "#EFF6FF",
+          }}
+        >
+          {clinic.hmoCount} HMO plans accepted
+        </div>
+      </div>
+    </div>,
     {
       ...size,
       fonts: [

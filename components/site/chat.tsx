@@ -11,7 +11,15 @@ import {
   type ReactNode,
 } from "react";
 import { BookingDialog } from "@/components/site/booking-dialog";
-import { callBothBranches, clinic } from "@/lib/clinic";
+import { healthQuestionReply, isMedicalQuestion } from "@/lib/chat-safety";
+import {
+  appointmentClinics,
+  callBothBranches,
+  clinic,
+  clinicSchedules,
+  labOpeningHours,
+  services,
+} from "@/lib/clinic";
 
 type Message = { id: number; from: "bot" | "user"; text: string };
 type Draft = { from: "bot" | "user"; text: string };
@@ -22,10 +30,8 @@ type ChatState = {
   open: boolean;
   input: string;
   used: string[];
-  flow: "book" | null;
-  step: number;
   pending: boolean;
-  booking: Record<string, string>;
+  bookingDialogOpen: boolean;
   messages: Message[];
 };
 
@@ -38,12 +44,12 @@ const answers: Record<AnswerKey, { label: string; q: string; a: string }> = {
   services: {
     label: "What services do you offer?",
     q: "What services do you offer?",
-    a: "We offer General Practice, Maternity, Scan, Lab, Surgery, Orthopaedics, Gynaecology, Urology, ENT, Physiotherapy and General Consult.\n\nIf you tell me what you need, I can point you to the right branch.",
+    a: `Our services include ${services.map((service) => service.name).join(", ")}. ${clinic.careDescription}\n\nIf you tell me what you need, I can point you to the right unit.`,
   },
   where: {
     label: "Where are you located?",
     q: "Where are you located?",
-    a: "We have two branches in Lagos:\n\nKetu — 5 Doyin Omololu Street, Ketu.\nIju — 56 Agbado Road, Tokotaya bus stop, Iju Ishaga.\n\nBoth are marked on the map on this page.\n\nKetu: 0706 713 1613. Iju: 0706 713 1611.",
+    a: "We have two branches in Lagos:\n\nKetu — 5 Doyin Omololu Street, off Demurin street, Ketu.\nIju — 56 Agbado Road, Tokotaya bus stop, Iju Ishaga.\n\nBoth are marked on the map on this page.\n\nKetu: 0706 713 1613. Iju: 0706 713 1611.",
   },
   hours: {
     label: "What are your opening hours?",
@@ -52,25 +58,23 @@ const answers: Record<AnswerKey, { label: string; q: string; a: string }> = {
   },
 };
 
+const clinicScheduleAnswer = `Scheduled clinics: ${clinicSchedules.map((item) => `${item.name}: ${item.details}`).join("; ")}. Clinics by appointment: ${appointmentClinics.join(", ")}.`;
+const labHoursAnswer = `Laboratory opening hours: ${labOpeningHours
+  .map(
+    (location) =>
+      `${location.branch}: ${location.hours.map((item) => `${item.days} ${item.time}`).join(", ")}${location.note ? `. ${location.note}` : ""}`,
+  )
+  .join(". ")}.`;
+
 const quickReplyClass =
   "min-h-11 border border-pine/70 px-3.5 py-3 text-left text-sm font-bold text-pine hover:bg-pine/10";
-
-const bookingPrompts = [
-  "What is your full name?",
-  "Thank you. What phone number should the clinic call you on?",
-  "What do you need to see the doctor about? A short note is enough.",
-  "And what day and time would suit you best?",
-];
-const bookingKeys = ["name", "phone", "reason", "time"];
 
 const initialState: ChatState = {
   open: false,
   input: "",
   used: [],
-  flow: null,
-  step: 0,
   pending: false,
-  booking: {},
+  bookingDialogOpen: false,
   messages: [
     {
       id: 0,
@@ -99,53 +103,35 @@ function askIn(state: ChatState, key: AnswerKey): ChatState {
     { from: "user", text: answer.q },
     { from: "bot", text: answer.a },
   ];
-  if (state.flow === "book") {
-    drafts.push({ from: "bot", text: bookingPrompts[state.step] });
-  }
   return push({ ...state, used: markUsed(state.used, key) }, drafts);
 }
 
-function startBookingIn(state: ChatState, echoRequest: boolean): ChatState {
-  const next: ChatState = {
-    ...state,
-    used: markUsed(state.used, "book"),
-    flow: "book",
-    step: 0,
-    booking: {},
-  };
-  const drafts: Draft[] = echoRequest
-    ? [
-        { from: "user", text: "Book an appointment" },
-        { from: "bot", text: "Happy to help. What is your full name?" },
-      ]
-    : [{ from: "bot", text: "Of course. What is your full name?" }];
-  return push(next, drafts);
-}
-
-function advanceBooking(state: ChatState, text: string): ChatState {
-  const { step } = state;
-  const booking = { ...state.booking, [bookingKeys[step]]: text };
-  if (step < 3) {
-    return push({ ...state, booking, step: step + 1 }, [
-      { from: "user", text },
-      { from: "bot", text: bookingPrompts[step + 1] },
-    ]);
-  }
-  const summary = `Thank you, ${booking.name ?? ""}. Here is what I have:\n\nName: ${booking.name ?? "—"}\nPhone: ${booking.phone ?? "—"}\nReason: ${booking.reason ?? "—"}\nPreferred time: ${booking.time ?? "—"}\n\nNothing is sent automatically from this chat. Use the Book Appointment button at the top of the page and we will open WhatsApp with these details ready to send to your branch — or call us now, ${callBothBranches}.`;
-  return push({ ...state, booking, flow: null, step: 0 }, [
-    { from: "user", text },
-    { from: "bot", text: summary },
-  ]);
-}
-
 function isBookingRequest(text: string) {
-  return /book|appoint|schedul|see (a|the) doctor/.test(text.toLowerCase());
+  const normalized = text.toLowerCase().replace(/[’]/g, "'");
+  return (
+    /\b(book(?:ing)?|appoint(?:ment|ments)?|schedul(?:e|ing)|reserve)\b/.test(
+      normalized,
+    ) || /\b(?:see|visit) (?:a|the) (?:doctor|clinic)\b/.test(normalized)
+  );
 }
 
 function offlineReply(text: string): string {
   const t = text.toLowerCase();
+  if (isMedicalQuestion(text)) return healthQuestionReply;
+  if (/lab|laboratory/.test(t) && /hour|open|close|time|schedule/.test(t)) {
+    return labHoursAnswer;
+  }
   if (/hmo|insur|cover|axa|leadway|hygeia|clearline|princeton|hci/.test(t)) {
     return answers.hmo.a;
+  }
+  if (
+    (/schedule|when|what day|what time|clinic hours/.test(t) &&
+      /clinic|antenatal|ent|orthopaed|gynae|physio|urolog|neurolog|psychiatr/.test(
+        t,
+      )) ||
+    /urology|neurology|psychiatry/.test(t)
+  ) {
+    return clinicScheduleAnswer;
   }
   if (/hour|open|close|time|sunday|weekend/.test(t)) {
     return clinic.openingHours;
@@ -153,10 +139,18 @@ function offlineReply(text: string): string {
   if (/where|locat|address|direction|ketu|iju|branch|map/.test(t)) {
     return answers.where.a;
   }
-  if (/service|scan|lab|surgery|matern|physio|ent|urolog|gynae|ortho|consult/.test(t)) {
+  if (
+    /service|outpatient|admission|immuni|scan|ultrasound|lab|surgery|matern|physio|wellness|health check|counsell|primary|secondary/.test(
+      t,
+    )
+  ) {
     return answers.services.a;
   }
-  if (/pain|sick|fever|malaria|pregnan|symptom|treat|drug|medicine|diagnos|blood|hurt/.test(t)) {
+  if (
+    /pain|sick|fever|malaria|pregnan|symptom|treat|drug|medicine|diagnos|blood|hurt/.test(
+      t,
+    )
+  ) {
     return `I am not able to give medical advice over chat. The safest step is to see one of our doctors — I can book an appointment for you now, or you can call the clinic directly — ${callBothBranches}.`;
   }
   return `I may not have that one to hand. You can call the clinic — ${callBothBranches} — or email ${clinic.email}, and the team will answer properly. I can also book you an appointment if that would help.`;
@@ -204,13 +198,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const openChat = useCallback((intent?: ChatIntent) => {
     setState((s) => {
       const opened = { ...s, open: true };
-      if (intent === "book" && !s.used.includes("book")) return startBookingIn(opened, true);
-      if (intent === "hmo" && !s.used.includes("hmo")) return askIn(opened, "hmo");
+      if (intent === "book") return { ...opened, bookingDialogOpen: true };
+      if (intent === "hmo" && !s.used.includes("hmo"))
+        return askIn(opened, "hmo");
       return opened;
     });
   }, []);
 
-  const atWelcome = !state.flow && !state.messages.some((m) => m.from === "user");
+  const atWelcome = !state.messages.some((m) => m.from === "user");
   const quickReplies = atWelcome
     ? (["hmo", "services", "where", "hours"] as AnswerKey[]).map((key) => ({
         key,
@@ -224,20 +219,33 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     const text = state.input.trim();
     if (!text || state.pending) return;
 
-    if (state.flow === "book") {
-      setState((s) => advanceBooking({ ...s, input: "" }, text));
+    if (isBookingRequest(text)) {
+      setState((s) =>
+        push({ ...s, input: "", bookingDialogOpen: true }, [
+          { from: "user", text },
+          {
+            from: "bot",
+            text: "Sure — I’m opening the appointment form for you now.",
+          },
+        ]),
+      );
       return;
     }
 
-    if (isBookingRequest(text)) {
+    if (isMedicalQuestion(text)) {
       setState((s) =>
-        startBookingIn(push({ ...s, input: "" }, [{ from: "user", text }]), false),
+        push({ ...s, input: "" }, [
+          { from: "user", text },
+          { from: "bot", text: healthQuestionReply },
+        ]),
       );
       return;
     }
 
     const history = state.messages;
-    setState((s) => push({ ...s, input: "", pending: true }, [{ from: "user", text }]));
+    setState((s) =>
+      push({ ...s, input: "", pending: true }, [{ from: "user", text }]),
+    );
 
     let reply: string;
     try {
@@ -245,19 +253,31 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     } catch {
       reply = offlineReply(text);
     }
-    setState((s) => push({ ...s, pending: false }, [{ from: "bot", text: reply }]));
+    setState((s) =>
+      push({ ...s, pending: false }, [{ from: "bot", text: reply }]),
+    );
   };
 
   return (
     <ChatContext.Provider value={openChat}>
       {children}
+      <BookingDialog
+        open={state.bookingDialogOpen}
+        onOpenChange={(bookingDialogOpen) =>
+          setState((s) => ({ ...s, bookingDialogOpen }))
+        }
+      />
       <div className="fixed right-4 bottom-4 z-60 flex flex-col items-end gap-3">
         {state.open ? (
           <div className="flex h-[min(560px,calc(100vh-120px))] w-[min(380px,calc(100vw-32px))] animate-rise flex-col overflow-hidden border border-ink/30 bg-surface shadow-panel">
             <div className="flex flex-none items-center justify-between gap-3 bg-forest px-4 py-3.5 text-surface">
               <div className="flex flex-col">
-                <span className="text-lg font-bold">{clinic.familiarName} Assistant</span>
-                <span className="text-[11px] text-fern">Typically replies instantly</span>
+                <span className="text-lg font-bold">
+                  {clinic.familiarName} Assistant
+                </span>
+                <span className="text-[11px] text-fern">
+                  Typically replies instantly
+                </span>
               </div>
               <button
                 type="button"
@@ -269,7 +289,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               </button>
             </div>
 
-            <div ref={logRef} className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
+            <div
+              ref={logRef}
+              className="flex flex-1 flex-col gap-3 overflow-y-auto p-4"
+            >
               {state.messages.map((m) => (
                 <div key={m.id} className="flex flex-col">
                   {m.from === "bot" ? (
@@ -319,8 +342,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               <form onSubmit={onSubmit} className="flex items-center gap-2">
                 <input
                   value={state.input}
-                  onChange={(e) => setState((s) => ({ ...s, input: e.target.value }))}
-                  placeholder={state.flow === "book" ? "Type your answer…" : "Type your question…"}
+                  onChange={(e) =>
+                    setState((s) => ({ ...s, input: e.target.value }))
+                  }
+                  placeholder={"Type your question…"}
                   aria-label="Message"
                   className="min-h-11 min-w-0 flex-1 border border-ink/30 bg-paper px-3 py-3 text-sm text-ink"
                 />
@@ -360,7 +385,11 @@ export function ChatTrigger({
 }) {
   const openChat = useChat();
   return (
-    <button type="button" onClick={() => openChat(intent)} className={className}>
+    <button
+      type="button"
+      onClick={() => openChat(intent)}
+      className={className}
+    >
       {children}
     </button>
   );

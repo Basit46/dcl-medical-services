@@ -11,25 +11,30 @@ export default async function AppleIcon() {
   );
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 10,
-          background: "#1F3D33",
-          color: "#FAFBF7",
-          fontFamily: "FrankRuhl",
-        }}
-      >
-        <div style={{ fontSize: 68, letterSpacing: "-0.01em", lineHeight: 1 }}>DCL</div>
-        <div style={{ width: 54, height: 4, background: "#D9A441" }} />
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+        background: "#164885",
+        color: "#EFF6FF",
+        fontFamily: "FrankRuhl",
+      }}
+    >
+      <div style={{ fontSize: 68, letterSpacing: "-0.01em", lineHeight: 1 }}>
+        DCL
       </div>
-    ),
-    { ...size, fonts: [{ name: "FrankRuhl", data: display, style: "normal", weight: 500 }] },
+      <div style={{ width: 54, height: 4, background: "#2F7DE1" }} />
+    </div>,
+    {
+      ...size,
+      fonts: [
+        { name: "FrankRuhl", data: display, style: "normal", weight: 500 },
+      ],
+    },
   );
 }

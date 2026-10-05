@@ -33,16 +33,7 @@ export function clinicJsonLd() {
     priceRange: "$$",
     currenciesAccepted: "NGN",
     isAcceptingNewPatients: true,
-    medicalSpecialty: [
-      "PrimaryCare",
-      "Obstetric",
-      "Gynecologic",
-      "Surgical",
-      "Orthopedic",
-      "Urologic",
-      "Otolaryngologic",
-      "Physiotherapy",
-    ],
+    medicalSpecialty: ["PrimaryCare", "Obstetric", "Surgical", "Physiotherapy"],
     availableService: services.map((service) => ({
       "@type": "MedicalProcedure",
       name: service.name,
@@ -53,7 +44,10 @@ export function clinicJsonLd() {
       name: director.name,
       jobTitle: director.role,
     },
-    sameAs: ["https://facebook.com/Dejiclinic", "https://instagram.com/Dejiclinic"],
+    sameAs: [
+      "https://facebook.com/Dejiclinic",
+      "https://instagram.com/Dejiclinic",
+    ],
     openingHoursSpecification: openingHours,
     department: branches.map((branch) => ({
       "@type": "MedicalClinic",

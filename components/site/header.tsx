@@ -1,40 +1,90 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { clinic, navLinks } from "@/lib/clinic";
 
-function NavLinks() {
+function NavLinks({
+  mobile = false,
+  onNavigate,
+}: {
+  mobile?: boolean;
+  onNavigate?: () => void;
+}) {
   return navLinks.map((link) => (
-    <a key={link.href} href={link.href} className="text-slate no-underline">
+    <Link
+      key={link.href}
+      href={link.href.startsWith("#") ? `/${link.href}` : link.href}
+      onClick={onNavigate}
+      className={
+        mobile
+          ? "rounded-lg px-3 py-2.5 text-sm font-medium text-primary-800 no-underline transition-colors hover:bg-white hover:text-primary-600"
+          : "rounded-full px-3 py-2 text-[12px] font-semibold tracking-[0.02em] text-primary-800 no-underline transition-colors hover:bg-white hover:text-primary-600 hover:shadow-sm"
+      }
+    >
       {link.label}
-    </a>
+    </Link>
   ));
 }
 
 export function SiteHeader() {
-  return (
-    <header className="sticky top-0 z-40 border-b border-ink/15 bg-paper/95 backdrop-blur-[8px]">
-      <div className="mx-auto max-w-[1080px] px-5">
-        <div className="flex items-center justify-between gap-4 py-3">
-          <a
-            href="#top"
-            className="text-lg font-bold tracking-[0.01em] text-ink no-underline sm:text-[22px]"
-          >
-            {clinic.name}
-          </a>
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-          <nav className="hidden min-w-0 flex-1 gap-[18px] overflow-x-auto text-[13px] tracking-[0.04em] whitespace-nowrap lg:flex">
+  return (
+    <header className="sticky top-0 z-40 border-b border-primary-100 bg-white/95 shadow-sm shadow-primary-900/5 backdrop-blur-xl">
+      <div className="mx-auto max-w-[1250px] px-5">
+        <div className="flex min-h-[78px] items-center justify-between gap-5 py-3">
+          <Link
+            href="/#top"
+            aria-label={clinic.name}
+            className="flex flex-none flex-col items-start no-underline"
+          >
+            <Image
+              src="/dcl-logo.jpg"
+              alt={clinic.name}
+              width={1200}
+              height={200}
+              priority
+              className="h-auto w-[170px] sm:w-[215px]"
+            />
+            <span className="ml-1 mt-0.5 text-[9px] font-bold tracking-[0.2em] text-primary-700 uppercase">
+              Ketu · Iju-Ishaga
+            </span>
+          </Link>
+
+          <nav
+            aria-label="Main navigation"
+            className="hidden items-center rounded-full border border-primary-100 bg-primary-50/70 p-1 lg:flex"
+          >
             <NavLinks />
           </nav>
 
-          <a
-            href="#contact"
-            className="inline-flex min-h-11 flex-none items-center border border-pine px-3.5 py-2 text-[15px] font-bold whitespace-nowrap text-pine no-underline hover:bg-pine/10"
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-lg"
+            className="rounded-full border-primary-100 text-primary-800 lg:hidden"
+            aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
+            onClick={() => setMobileMenuOpen((open) => !open)}
           >
-            Call us
-          </a>
+            {mobileMenuOpen ? <X /> : <Menu />}
+          </Button>
         </div>
 
-        <nav className="-mx-5 flex gap-5 overflow-x-auto px-5 pb-2.5 text-[13px] tracking-[0.04em] whitespace-nowrap [mask-image:linear-gradient(90deg,#000_0,#000_calc(100%-24px),transparent_100%)] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
-          <NavLinks />
-        </nav>
+        {mobileMenuOpen && (
+          <nav
+            id="mobile-navigation"
+            aria-label="Mobile navigation"
+            className="grid grid-cols-2 gap-1 border-t border-primary-100 py-3 lg:hidden"
+          >
+            <NavLinks mobile onNavigate={() => setMobileMenuOpen(false)} />
+          </nav>
+        )}
       </div>
     </header>
   );
