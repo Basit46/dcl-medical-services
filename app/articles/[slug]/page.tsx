@@ -17,25 +17,47 @@ type ArticlePageProps = {
   params: Promise<{ slug: string }>;
 };
 
+type PortableBlock = {
+  _type: string;
+  children?: { text?: string }[];
+};
+
+const headingBase =
+  "mt-4 font-display leading-tight font-normal text-primary-900";
+
 const portableTextComponents = {
   block: {
-    normal: ({ children }: { children?: ReactNode }) => (
-      <p className="m-0">{children}</p>
-    ),
+    normal: ({ children }: { children?: ReactNode }) => <p>{children}</p>,
     h2: ({ children }: { children?: ReactNode }) => (
-      <h2 className="m-0 pt-2 font-display text-3xl leading-tight font-normal text-primary-900">
-        {children}
-      </h2>
+      <h2 className={`${headingBase} text-3xl`}>{children}</h2>
     ),
     h3: ({ children }: { children?: ReactNode }) => (
-      <h3 className="m-0 pt-2 font-display text-2xl leading-tight font-normal text-primary-900">
-        {children}
-      </h3>
+      <h3 className={`${headingBase} text-2xl`}>{children}</h3>
     ),
     blockquote: ({ children }: { children?: ReactNode }) => (
-      <blockquote className="m-0 border-l-4 border-primary-300 pl-5 italic text-primary-700">
+      <blockquote className="border-l-4 border-primary-300 pl-5 italic text-primary-700">
         {children}
       </blockquote>
+    ),
+  },
+  list: {
+    bullet: ({ children }: { children?: ReactNode }) => (
+      <ul className="flex list-disc flex-col gap-3 pl-6 marker:text-primary-500">
+        {children}
+      </ul>
+    ),
+    number: ({ children }: { children?: ReactNode }) => (
+      <ol className="flex list-decimal flex-col gap-3 pl-6 marker:text-primary-500">
+        {children}
+      </ol>
+    ),
+  },
+  listItem: {
+    bullet: ({ children }: { children?: ReactNode }) => (
+      <li className="pl-1">{children}</li>
+    ),
+    number: ({ children }: { children?: ReactNode }) => (
+      <li className="pl-1">{children}</li>
     ),
   },
   marks: {
@@ -57,7 +79,7 @@ const portableTextComponents = {
   types: {
     image: ({ value }: { value: { url?: string } }) =>
       value.url ? (
-        <figure className="my-8 overflow-hidden rounded-2xl border border-primary-100">
+        <figure className="my-2 overflow-hidden rounded-2xl border border-primary-100">
           <Image
             src={value.url}
             alt=""
@@ -70,6 +92,23 @@ const portableTextComponents = {
       ) : null,
   },
 };
+
+function withoutEmptyBlocks(blocks: PortableBlock[]) {
+  return blocks.filter(
+    (block) =>
+      block._type !== "block" ||
+      block.children?.some((child) => child.text?.trim()),
+  );
+}
+
+function formatDate(date: string) {
+  return new Intl.DateTimeFormat("en-NG", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(date));
+}
 
 export function generateStaticParams() {
   return localArticles.map(({ slug }) => ({ slug }));
@@ -95,15 +134,6 @@ export async function generateMetadata({
   };
 }
 
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat("en-NG", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(date));
-}
-
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params;
   const article = await getArticle(slug);
@@ -114,6 +144,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const relatedArticles = allArticles
     .filter((item) => item.slug !== article.slug)
     .slice(0, 2);
+
+  const portableBody = article.portableBody
+    ? withoutEmptyBlocks(article.portableBody as PortableBlock[])
+    : null;
 
   return (
     <ChatProvider>
@@ -154,20 +188,19 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
             <div className="mx-auto grid max-w-[1100px] gap-10 px-5 py-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-16">
               <div className="mx-auto w-full max-w-[72ch]">
-                <div className="space-y-6 text-[16px] leading-[1.9] text-primary-900/90 sm:text-[17px]">
-                  {article.portableBody ? (
+                <div className="flex flex-col gap-6 text-[16px] leading-[1.9] text-primary-900/90 sm:text-[17px]">
+                  {portableBody ? (
                     <PortableText
-                      value={article.portableBody as never}
+                      value={portableBody as never}
                       components={portableTextComponents}
                     />
                   ) : (
                     article.body.map((block, index) => {
+                      const key = `${article.slug}-${index}`;
+
                       if (block.type === "heading") {
                         return (
-                          <h2
-                            key={`${article.slug}-${index}`}
-                            className="m-0 pt-2 font-display text-3xl leading-tight font-normal text-primary-900"
-                          >
+                          <h2 key={key} className={`${headingBase} text-3xl`}>
                             {block.text}
                           </h2>
                         );
@@ -176,8 +209,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                       if (block.type === "list") {
                         return (
                           <ul
-                            key={`${article.slug}-${index}`}
-                            className="m-0 flex list-disc flex-col gap-3 pl-6 marker:text-primary-500"
+                            key={key}
+                            className="flex list-disc flex-col gap-3 pl-6 marker:text-primary-500"
                           >
                             {block.items.map((item) => (
                               <li key={item} className="pl-1">
@@ -191,8 +224,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                       if (block.type === "image") {
                         return (
                           <figure
-                            key={`${article.slug}-${index}`}
-                            className="my-8 overflow-hidden rounded-2xl border border-primary-100"
+                            key={key}
+                            className="my-2 overflow-hidden rounded-2xl border border-primary-100"
                           >
                             <Image
                               src={block.url}
@@ -206,11 +239,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                         );
                       }
 
-                      return (
-                        <p key={`${article.slug}-${index}`} className="m-0">
-                          {block.text}
-                        </p>
-                      );
+                      return <p key={key}>{block.text}</p>;
                     })
                   )}
                 </div>
@@ -262,10 +291,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                       href={`/articles/${related.slug}`}
                       className="group flex items-center justify-between gap-4 rounded-xl border border-primary-100 bg-white p-5 text-inherit no-underline transition-colors hover:border-primary-300"
                     >
-                      <span>
-                        <span className="font-display text-xl text-primary-900 group-hover:text-primary-600">
-                          {related.title}
-                        </span>
+                      <span className="font-display text-xl text-primary-900 group-hover:text-primary-600">
+                        {related.title}
                       </span>
                       <ArrowRight
                         size={18}
