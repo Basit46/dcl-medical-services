@@ -35,6 +35,7 @@ export type Branch = {
   index: string;
   name: string;
   address: string;
+  postcode: string;
   tel: { label: string; href: string };
   whatsapp: string;
   position: [number, number];
@@ -46,6 +47,7 @@ export const branches: Branch[] = [
     index: "Branch 01",
     name: "Ketu",
     address: "5 Doyin Omololu Street, off Demurin street, Ketu, Lagos",
+    postcode: "LA 13 A19 EL 14",
     tel: { label: "0706 713 1613", href: "tel:07067131613" },
     whatsapp: "2347067131613",
     position: [6.6016, 3.3862],
@@ -55,6 +57,7 @@ export const branches: Branch[] = [
     index: "Branch 02",
     name: "Iju Ishaga",
     address: "56 Agbado Road, Tokotaya bus stop, Iju Ishaga, Lagos",
+    postcode: "LA 10 A12 KB 07",
     tel: { label: "0706 713 1611", href: "tel:07067131611" },
     whatsapp: "2347067131611",
     position: [6.6659, 3.3247],

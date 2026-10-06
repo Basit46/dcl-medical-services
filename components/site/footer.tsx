@@ -23,7 +23,7 @@ export function SiteFooter() {
               <a
                 key={branch.id}
                 href={branch.tel.href}
-                className="tnum text-[22px] text-primary-300 no-underline"
+                className="tnum text-[18px] no-underline"
               >
                 {branch.name} — {branch.tel.label}
               </a>
@@ -67,6 +67,8 @@ export function SiteFooter() {
               </span>
               <span className="text-[14.5px] leading-[1.6] text-cream">
                 {branch.address}
+                <br />
+                Post Code: {branch.postcode}
                 <br />
                 {branch.tel.label}
               </span>

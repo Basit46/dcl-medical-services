@@ -14,7 +14,7 @@ const facts = [
   `${clinic.name} (${clinic.legalName}), known to patients as ${clinic.familiarName}. A family clinic in Lagos, Nigeria, established ${clinic.establishedMonth} ${clinic.established}. ${clinic.careDescription} Motto: "${clinic.tagline}".`,
   `Opening hours: ${clinic.openingHours}`,
   `Branches: ${branches
-    .map((b) => `${b.name} — ${b.address}, phone ${b.tel.label}`)
+    .map((b) => `${b.name} — ${b.address}, Post Code ${b.postcode}, phone ${b.tel.label}`)
     .join("; ")}.`,
   `Email: ${clinic.email}. Director's line: ${clinic.directorLine.label}.`,
   `Services: ${services.map((s) => `${s.name} — ${s.desc}`).join("; ")}.`,

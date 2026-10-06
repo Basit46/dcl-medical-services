@@ -209,6 +209,8 @@ export function BookingDialog({
                       </span>
                       <span className="text-[12.5px] leading-[1.5] text-moss">
                         {option.address}
+                        <br />
+                        Post Code: {option.postcode}
                       </span>
                     </span>
                   </Label>

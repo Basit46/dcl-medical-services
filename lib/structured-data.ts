@@ -57,6 +57,7 @@ export function clinicJsonLd() {
       address: {
         "@type": "PostalAddress",
         streetAddress: branch.address.split(", Lagos")[0],
+        postalCode: branch.postcode.replaceAll(" ", ""),
         addressLocality: branch.name,
         addressRegion: "Lagos",
         addressCountry: "NG",

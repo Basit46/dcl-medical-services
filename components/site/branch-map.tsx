@@ -38,7 +38,7 @@ export function BranchMap() {
           title: branch.name,
         }).addTo(map);
         marker.bindPopup(
-          `<div style="font-size:13px;line-height:1.6"><strong style="font-size:16px">${branch.name} branch</strong><br>${branch.address}<br><a href="${branch.tel.href}">${branch.tel.label}</a></div>`,
+          `<div style="font-size:13px;line-height:1.6"><strong style="font-size:16px">${branch.name} branch</strong><br>${branch.address}<br>Post Code: ${branch.postcode}<br><a href="${branch.tel.href}">${branch.tel.label}</a></div>`,
         );
         return marker.getLatLng();
       });

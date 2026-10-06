@@ -25,6 +25,8 @@ export function Locations() {
             </h3>
             <p className="m-0 mb-3 text-[14.5px] leading-[1.7] text-slate">
               {branch.address}
+              <br />
+              <span className="tnum">Post Code: {branch.postcode}</span>
             </p>
             <a href={branch.tel.href} className="tnum text-[15px] text-pine">
               {branch.tel.label}

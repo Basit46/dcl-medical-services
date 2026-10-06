@@ -68,6 +68,8 @@ export function Hero() {
               </span>
               <span className="text-[14.5px] leading-[1.6] text-ink">
                 {branch.address}
+                <br />
+                <span className="tnum">Post Code: {branch.postcode}</span>
               </span>
             </div>
           ))}

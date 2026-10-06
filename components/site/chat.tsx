@@ -14,6 +14,7 @@ import { BookingDialog } from "@/components/site/booking-dialog";
 import { healthQuestionReply, isMedicalQuestion } from "@/lib/chat-safety";
 import {
   appointmentClinics,
+  branches,
   callBothBranches,
   clinic,
   clinicSchedules,
@@ -49,7 +50,12 @@ const answers: Record<AnswerKey, { label: string; q: string; a: string }> = {
   where: {
     label: "Where are you located?",
     q: "Where are you located?",
-    a: "We have two branches in Lagos:\n\nKetu — 5 Doyin Omololu Street, off Demurin street, Ketu.\nIju — 56 Agbado Road, Tokotaya bus stop, Iju Ishaga.\n\nBoth are marked on the map on this page.\n\nKetu: 0706 713 1613. Iju: 0706 713 1611.",
+    a: `We have two branches in Lagos:\n\n${branches
+      .map(
+        (b) =>
+          `${b.name} — ${b.address}. Post Code: ${b.postcode}.`,
+      )
+      .join("\n")}\n\nBoth are marked on the map on this page.\n\nKetu: ${branches[0].tel.label}. Iju: ${branches[1].tel.label}.`,
   },
   hours: {
     label: "What are your opening hours?",
