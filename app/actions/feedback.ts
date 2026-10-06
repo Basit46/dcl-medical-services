@@ -3,7 +3,7 @@
 import { feedbackSchema } from "@/lib/feedback-form";
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const FEEDBACK_EMAIL = "hassanbasitope@gmail.com";
+const FEEDBACK_EMAIL = "dejiclinic2005@yahoo.com";
 
 function formatBranchName(branchId: string): string {
   const branchNames: Record<string, string> = {
@@ -37,7 +37,7 @@ function formatDiscussedWithStaff(value: string): string {
 
 export async function submitFeedback(
   _prev: { status: "idle" | "success" | "error"; message: string },
-  formData: FormData
+  formData: FormData,
 ): Promise<{ status: "idle" | "success" | "error"; message: string }> {
   const rawData = {
     email: formData.get("email") as string,
@@ -52,7 +52,8 @@ export async function submitFeedback(
     suggestionComplaint: formData.get("suggestionComplaint") as string,
     discussedWithStaff: formData.get("discussedWithStaff") as string,
     contactMethod: formData.get("contactMethod") as string,
-    improvementSuggestion: (formData.get("improvementSuggestion") as string) || "",
+    improvementSuggestion:
+      (formData.get("improvementSuggestion") as string) || "",
   };
 
   const parsed = feedbackSchema.safeParse(rawData);
@@ -83,23 +84,32 @@ export async function submitFeedback(
   `;
 
   if (!BREVO_API_KEY) {
-    return { status: "error", message: "Email service is not configured. Please try again later." };
+    return {
+      status: "error",
+      message: "Email service is not configured. Please try again later.",
+    };
   }
 
   try {
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
-        "accept": "application/json",
+        accept: "application/json",
         "api-key": BREVO_API_KEY,
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        sender: { email: FEEDBACK_EMAIL, name: "DCL Medical Services Feedback" },
+        sender: {
+          email: FEEDBACK_EMAIL,
+          name: "DCL Medical Services Feedback",
+        },
         to: [{ email: FEEDBACK_EMAIL, name: "DCL Medical Services" }],
         subject: `New Feedback from ${data.firstName} ${data.surname} - ${formatBranchName(data.branch)}`,
         htmlContent,
-        replyTo: { email: data.email, name: `${data.firstName} ${data.surname}` },
+        replyTo: {
+          email: data.email,
+          name: `${data.firstName} ${data.surname}`,
+        },
       }),
     });
 
@@ -109,9 +119,16 @@ export async function submitFeedback(
       throw new Error("Failed to send email");
     }
 
-    return { status: "success", message: "Thank you! Your feedback has been sent successfully." };
+    return {
+      status: "success",
+      message: "Thank you! Your feedback has been sent successfully.",
+    };
   } catch (error) {
     console.error("Failed to send feedback email:", error);
-    return { status: "error", message: "We could not send your feedback just now. Please try again in a moment." };
+    return {
+      status: "error",
+      message:
+        "We could not send your feedback just now. Please try again in a moment.",
+    };
   }
 }
