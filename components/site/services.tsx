@@ -8,9 +8,12 @@ import {
 export function Services() {
   return (
     <section id="services" className="mx-auto max-w-[1250px] px-5 py-14">
-      <h2 className="m-0 mb-2 font-display text-4xl font-normal">Services</h2>
+      <h2 className="m-0 mb-2 font-display text-4xl font-normal">
+        Hospital services
+      </h2>
       <p className="m-0 mb-7 max-w-[48ch] text-[15px] leading-[1.7] text-moss">
-        Explore the care available at DCL Medical Services.
+        Explore the care available at our hospitals in Ketu and Iju-Ishaga,
+        Lagos.
       </p>
 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-[26px]">

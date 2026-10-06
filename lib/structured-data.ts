@@ -26,6 +26,8 @@ export function clinicJsonLd() {
     alternateName: [clinic.familiarName, clinic.legalName],
     url: site.url,
     description: site.description,
+    keywords: [...site.keywords].join(", "),
+    areaServed: [...site.areasServed],
     slogan: clinic.tagline,
     email: clinic.email,
     foundingDate: String(clinic.established),
@@ -62,6 +64,7 @@ export function clinicJsonLd() {
         addressRegion: "Lagos",
         addressCountry: "NG",
       },
+      areaServed: [...site.areasServed],
       geo: {
         "@type": "GeoCoordinates",
         latitude: branch.position[0],

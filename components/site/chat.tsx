@@ -55,7 +55,7 @@ const answers: Record<AnswerKey, { label: string; q: string; a: string }> = {
         (b) =>
           `${b.name} — ${b.address}. Post Code: ${b.postcode}.`,
       )
-      .join("\n")}\n\nBoth are marked on the map on this page.\n\nKetu: ${branches[0].tel.label}. Iju: ${branches[1].tel.label}.`,
+      .join("\n")}\n\nBoth are marked on the map on this page, and we also see patients from Alapere, Ogudu and nearby parts of Lagos.\n\nKetu: ${branches[0].tel.label}. Iju: ${branches[1].tel.label}.`,
   },
   hours: {
     label: "What are your opening hours?",

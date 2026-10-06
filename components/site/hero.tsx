@@ -10,7 +10,7 @@ export function Hero() {
       <div className="mx-auto grid max-w-[1250px] grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-start gap-12 px-5 pt-15 pb-14">
         <div>
           <h1 className="m-0 mb-[22px] max-w-[14ch] font-display text-[clamp(38px,8.5vw,56px)] leading-[1.03] font-normal tracking-[-0.02em] text-forest">
-            A clinic your family can trust.
+            A hospital your family can trust.
           </h1>
 
           <p className="m-0 mb-6 border-l-[3px] border-gold pl-4 text-[27px] leading-[1.2] tracking-[0.03em] text-forest">

@@ -20,7 +20,7 @@ const atkinsonHyperlegible = Atkinson_Hyperlegible({
   variable: "--font-atkinson-hyperlegible",
 });
 
-const title = `${clinic.name} — ${clinic.tagline}`;
+const title = site.title;
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -31,19 +31,7 @@ export const metadata: Metadata = {
   description: site.description,
   applicationName: clinic.name,
   generator: "Next.js",
-  keywords: [
-    "DCL Medical Services",
-    "Deji Clinic",
-    "clinic in Ketu",
-    "clinic in Iju Ishaga",
-    "hospital in Lagos",
-    "HMO accepted Lagos",
-    "maternity Lagos",
-    "antenatal care Ketu",
-    "ultrasound scan Lagos",
-    "medical laboratory Lagos",
-    "general practice Lagos",
-  ],
+  keywords: [...site.keywords],
   authors: [{ name: clinic.legalName }],
   creator: clinic.legalName,
   publisher: clinic.legalName,

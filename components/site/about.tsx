@@ -16,8 +16,9 @@ export function About() {
           </h2>
           <p className="m-0 mb-3.5 text-[15.5px] leading-[1.8] hyphens-auto text-justify text-slate">
             {clinic.name} was established as {clinic.legalName} in{" "}
-            {clinic.establishedMonth} {clinic.established}. Our units serve
-            patients in Ketu and Iju-Ishaga, Lagos.
+            {clinic.establishedMonth} {clinic.established} — patients in Ketu
+            and Alapere still know us as Deji Clinic. Our hospitals serve
+            patients in Ketu, Alapere and Iju-Ishaga, Lagos.
           </p>
           <p className="m-0 text-[15.5px] leading-[1.8] hyphens-auto text-justify text-slate">
             {clinic.workforceDescription}

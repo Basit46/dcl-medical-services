@@ -19,7 +19,9 @@ export function Hmo() {
 
         <p className="m-0 mb-7 max-w-[54ch] text-[15px] leading-[1.7] text-cream">
           If your employer or family plan is with a registered HMO, there is a
-          strong chance we are on the list.
+          strong chance we are on the list. Our hospitals in Ketu and
+          Iju-Ishaga are HMO-accepted hospitals in Lagos, with 70+ plans
+          covered.
         </p>
 
         <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-px border border-white/20 bg-white/20">

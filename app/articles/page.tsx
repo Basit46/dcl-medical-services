@@ -11,7 +11,7 @@ import type { Article } from "@/lib/articles";
 export const metadata: Metadata = {
   title: "Articles",
   description:
-    "News, updates, and articles from DCL Medical Services in Ketu and Iju-Ishaga, Lagos.",
+    "News, updates and articles from DCL Medical Services, formerly Deji Clinic — a hospital in Ketu and Iju-Ishaga, Lagos accepting 70+ HMO plans.",
 };
 
 function formatDate(date: string) {

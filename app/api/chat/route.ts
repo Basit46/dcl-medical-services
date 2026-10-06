@@ -7,6 +7,7 @@ import {
   hmoPlans,
   labOpeningHours,
   services,
+  site,
 } from "@/lib/clinic";
 import { healthQuestionReply, isMedicalQuestion } from "@/lib/chat-safety";
 
@@ -16,6 +17,7 @@ const facts = [
   `Branches: ${branches
     .map((b) => `${b.name} — ${b.address}, Post Code ${b.postcode}, phone ${b.tel.label}`)
     .join("; ")}.`,
+  `Areas served: ${site.areasServed.join(", ")}. Known to many patients as ${clinic.familiarName}.`,
   `Email: ${clinic.email}. Director's line: ${clinic.directorLine.label}.`,
   `Services: ${services.map((s) => `${s.name} — ${s.desc}`).join("; ")}.`,
   `Clinic schedules: ${clinicSchedules.map((item) => `${item.name}: ${item.details}`).join("; ")}.`,
