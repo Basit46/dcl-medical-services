@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, Newspaper, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { clinic, navLinks } from "@/lib/clinic";
 
@@ -55,25 +55,45 @@ export function SiteHeader() {
             </span>
           </Link>
 
-          <nav
-            aria-label="Main navigation"
-            className="hidden items-center rounded-full border border-primary-100 bg-primary-50/70 p-1 lg:flex"
-          >
-            <NavLinks />
-          </nav>
+          <div className="hidden items-center gap-2 lg:flex">
+            <nav
+              aria-label="Main navigation"
+              className="flex items-center rounded-full border border-primary-100 bg-primary-50/70 p-1"
+            >
+              <NavLinks />
+            </nav>
+            <Link
+              href="/articles"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary-600 px-4 py-2.5 text-[12px] font-bold tracking-[0.04em] text-white no-underline shadow-sm shadow-primary-600/25 transition-colors hover:bg-primary-700"
+            >
+              <Newspaper size={14} />
+              Articles
+            </Link>
+          </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-lg"
-            className="rounded-full border-primary-100 text-primary-800 lg:hidden"
-            aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-navigation"
-            onClick={() => setMobileMenuOpen((open) => !open)}
-          >
-            {mobileMenuOpen ? <X /> : <Menu />}
-          </Button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <Link
+              href="/articles"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary-600 px-3.5 py-2 text-[11px] font-bold tracking-[0.04em] text-white no-underline shadow-sm shadow-primary-600/25 transition-colors hover:bg-primary-700 lg:hidden"
+            >
+              <Newspaper size={13} />
+              Articles
+            </Link>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="rounded-full border-primary-100 text-primary-800 lg:hidden"
+              aria-label={
+                mobileMenuOpen ? "Close navigation" : "Open navigation"
+              }
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+            >
+              {mobileMenuOpen ? <X /> : <Menu />}
+            </Button>
+          </div>
         </div>
 
         {mobileMenuOpen && (

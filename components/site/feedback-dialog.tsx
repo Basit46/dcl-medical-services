@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle, LoaderCircle, X } from "lucide-react";
+import {
+  CheckCircle,
+  LoaderCircle,
+  LucideSendHorizonal,
+  X,
+} from "lucide-react";
 import { submitFeedback } from "@/app/actions/feedback";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,10 +23,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { branches, callBothBranches } from "@/lib/clinic";
-import { feedbackSchema, initialFeedbackFormValues, type FeedbackFormValues } from "@/lib/feedback-form";
+import {
+  feedbackSchema,
+  initialFeedbackFormValues,
+  type FeedbackFormValues,
+} from "@/lib/feedback-form";
 import { cn } from "@/lib/utils";
 
 const genderOptions = [
@@ -94,7 +109,10 @@ export function FeedbackDialog() {
         setSubmittedName(`${data.firstName} ${data.surname}`);
         setShowSuccess(true);
       } else {
-        setError("suggestionComplaint", { type: "server", message: result.message });
+        setError("suggestionComplaint", {
+          type: "server",
+          message: result.message,
+        });
       }
     } finally {
       setPending(false);
@@ -105,12 +123,19 @@ export function FeedbackDialog() {
     options: readonly { value: string; label: string }[],
     name: keyof FeedbackFormValues,
   ) => (
-    <RadioGroup aria-label={name} {...register(name)} className="grid grid-cols-3 gap-2">
+    <RadioGroup
+      aria-label={name}
+      {...register(name)}
+      className="grid grid-cols-3 gap-2"
+    >
       {options.map((option) => (
-        <Label key={option.value} className={cn(
-          "flex cursor-pointer items-center gap-2 rounded-lg border p-3.5 transition-colors",
-          "border-border hover:border-primary-400",
-        )}>
+        <Label
+          key={option.value}
+          className={cn(
+            "flex cursor-pointer items-center gap-2 rounded-lg border p-3.5 transition-colors",
+            "border-border hover:border-primary-400",
+          )}
+        >
           <RadioGroupItem value={option.value} className="mt-0.5" />
           <span className="text-base font-medium text-ink">{option.label}</span>
         </Label>
@@ -122,7 +147,7 @@ export function FeedbackDialog() {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="lg" className="h-12 text-base gap-2">
-          <X className="size-4" />
+          <LucideSendHorizonal className="size-4" />
           Send Feedback
         </Button>
       </DialogTrigger>
@@ -132,21 +157,31 @@ export function FeedbackDialog() {
             Send Feedback
           </DialogTitle>
           <DialogDescription className="text-[13px] leading-[1.6] text-primary-800">
-            Share your suggestions or complaints about your visit. Your feedback helps us improve.
+            Share your suggestions or complaints about your visit. Your feedback
+            helps us improve.
           </DialogDescription>
         </DialogHeader>
 
         {showSuccess ? (
           <div className="flex flex-col gap-5 px-5 py-8 sm:px-6">
             <p className="m-0 flex items-start gap-3 text-[15.5px] leading-[1.7] text-slate">
-              <CheckCircle aria-hidden className="mt-0.5 size-5 shrink-0 text-primary-600" />
+              <CheckCircle
+                aria-hidden
+                className="mt-0.5 size-5 shrink-0 text-primary-600"
+              />
               <span>
-                <strong>Thank you, {submittedName || "friend"}.</strong> Your feedback
-                has been received. If we can help you with anything, call{" "}
-                {callBothBranches}.
+                <strong>Thank you, {submittedName || "friend"}.</strong> Your
+                feedback has been received. If we can help you with anything,
+                call {callBothBranches}.
               </span>
             </p>
-            <Button type="button" variant="outline" size="lg" className="h-12 text-base" onClick={startAnother}>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="h-12 text-base"
+              onClick={startAnother}
+            >
               Send another feedback
             </Button>
             <DialogClose asChild>
@@ -156,7 +191,10 @@ export function FeedbackDialog() {
             </DialogClose>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6"
+          >
             <div className="grid gap-4 sm:grid-cols-2">
               <Label className="flex flex-col items-start gap-1.5">
                 <span className="text-sm font-medium text-ink">Email *</span>
@@ -167,11 +205,17 @@ export function FeedbackDialog() {
                   placeholder="you@example.com"
                   aria-invalid={Boolean(errors.email)}
                 />
-                {errors.email && <span className="text-[12.5px] text-red-700">{errors.email.message}</span>}
+                {errors.email && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.email.message}
+                  </span>
+                )}
               </Label>
 
               <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">Branch Visited *</span>
+                <span className="text-sm font-medium text-ink">
+                  Branch Visited *
+                </span>
                 <Select {...register("branch")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select branch" />
@@ -184,12 +228,18 @@ export function FeedbackDialog() {
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.branch && <span className="text-[12.5px] text-red-700">{errors.branch.message}</span>}
+                {errors.branch && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.branch.message}
+                  </span>
+                )}
               </Label>
             </div>
 
             <Label className="flex flex-col items-start gap-1.5">
-              <span className="text-sm font-medium text-ink">PHONE NO/WHATSAPP NO *</span>
+              <span className="text-sm font-medium text-ink">
+                PHONE NO/WHATSAPP NO *
+              </span>
               <Input
                 {...register("phone")}
                 type="tel"
@@ -197,30 +247,46 @@ export function FeedbackDialog() {
                 placeholder="08012345678"
                 aria-invalid={Boolean(errors.phone)}
               />
-              {errors.phone && <span className="text-[12.5px] text-red-700">{errors.phone.message}</span>}
+              {errors.phone && (
+                <span className="text-[12.5px] text-red-700">
+                  {errors.phone.message}
+                </span>
+              )}
             </Label>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">Date of Clinic visit *</span>
+                <span className="text-sm font-medium text-ink">
+                  Date of Clinic visit *
+                </span>
                 <Input
                   {...register("visitDate")}
                   type="date"
                   autoComplete="off"
                   aria-invalid={Boolean(errors.visitDate)}
                 />
-                {errors.visitDate && <span className="text-[12.5px] text-red-700">{errors.visitDate.message}</span>}
+                {errors.visitDate && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.visitDate.message}
+                  </span>
+                )}
               </Label>
 
               <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">Time of visit *</span>
+                <span className="text-sm font-medium text-ink">
+                  Time of visit *
+                </span>
                 <Input
                   {...register("visitTime")}
                   type="time"
                   autoComplete="off"
                   aria-invalid={Boolean(errors.visitTime)}
                 />
-                {errors.visitTime && <span className="text-[12.5px] text-red-700">{errors.visitTime.message}</span>}
+                {errors.visitTime && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.visitTime.message}
+                  </span>
+                )}
               </Label>
             </div>
 
@@ -232,22 +298,34 @@ export function FeedbackDialog() {
                   autoComplete="family-name"
                   aria-invalid={Boolean(errors.surname)}
                 />
-                {errors.surname && <span className="text-[12.5px] text-red-700">{errors.surname.message}</span>}
+                {errors.surname && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.surname.message}
+                  </span>
+                )}
               </Label>
 
               <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">FIRST NAME *</span>
+                <span className="text-sm font-medium text-ink">
+                  FIRST NAME *
+                </span>
                 <Input
                   {...register("firstName")}
                   autoComplete="given-name"
                   aria-invalid={Boolean(errors.firstName)}
                 />
-                {errors.firstName && <span className="text-[12.5px] text-red-700">{errors.firstName.message}</span>}
+                {errors.firstName && (
+                  <span className="text-[12.5px] text-red-700">
+                    {errors.firstName.message}
+                  </span>
+                )}
               </Label>
             </div>
 
             <Label className="flex flex-col items-start gap-1.5">
-              <span className="text-sm font-medium text-ink">YOUR HMO [IF NOT CASH PAYING CUSTOMER]</span>
+              <span className="text-sm font-medium text-ink">
+                YOUR HMO [IF NOT CASH PAYING CUSTOMER]
+              </span>
               <Input
                 {...register("hmo")}
                 autoComplete="off"
@@ -256,13 +334,22 @@ export function FeedbackDialog() {
             </Label>
 
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className="mb-2 text-sm font-semibold text-ink">GENDER</legend>
+              <legend className="mb-2 text-sm font-semibold text-ink">
+                GENDER
+              </legend>
               {renderRadioGroup(genderOptions, "gender")}
-              {errors.gender && <span className="text-[12.5px] text-red-700">{errors.gender.message}</span>}
+              {errors.gender && (
+                <span className="text-[12.5px] text-red-700">
+                  {errors.gender.message}
+                </span>
+              )}
             </fieldset>
 
             <Label className="flex flex-col items-start gap-1.5">
-              <span className="text-sm font-medium text-ink">WHAT SUGGESTION OR COMPLAINTS DO YOU HAVE ABOUT HOW YOU WERE SERVED? *</span>
+              <span className="text-sm font-medium text-ink">
+                WHAT SUGGESTION OR COMPLAINTS DO YOU HAVE ABOUT HOW YOU WERE
+                SERVED? *
+              </span>
               <Textarea
                 {...register("suggestionComplaint")}
                 rows={4}
@@ -270,25 +357,43 @@ export function FeedbackDialog() {
                 aria-invalid={Boolean(errors.suggestionComplaint)}
                 className="min-h-[100px] resize-y"
               />
-              {errors.suggestionComplaint && <span className="text-[12.5px] text-red-700">{errors.suggestionComplaint.message}</span>}
+              {errors.suggestionComplaint && (
+                <span className="text-[12.5px] text-red-700">
+                  {errors.suggestionComplaint.message}
+                </span>
+              )}
             </Label>
 
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
               <legend className="mb-2 text-sm font-semibold text-ink">
-                WERE YOU ABLE TO DISCUSS IT WITH THE HEAD NURSE OR THE DR ON DUTY
+                WERE YOU ABLE TO DISCUSS IT WITH THE HEAD NURSE OR THE DR ON
+                DUTY
               </legend>
               {renderRadioGroup(discussedOptions, "discussedWithStaff")}
-              {errors.discussedWithStaff && <span className="text-[12.5px] text-red-700">{errors.discussedWithStaff.message}</span>}
+              {errors.discussedWithStaff && (
+                <span className="text-[12.5px] text-red-700">
+                  {errors.discussedWithStaff.message}
+                </span>
+              )}
             </fieldset>
 
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className="mb-2 text-sm font-semibold text-ink">HOW BEST CAN YOU BE REACHED *</legend>
+              <legend className="mb-2 text-sm font-semibold text-ink">
+                HOW BEST CAN YOU BE REACHED *
+              </legend>
               {renderRadioGroup(contactOptions, "contactMethod")}
-              {errors.contactMethod && <span className="text-[12.5px] text-red-700">{errors.contactMethod.message}</span>}
+              {errors.contactMethod && (
+                <span className="text-[12.5px] text-red-700">
+                  {errors.contactMethod.message}
+                </span>
+              )}
             </fieldset>
 
             <Label className="flex flex-col items-start gap-1.5">
-              <span className="text-sm font-medium text-ink">WHAT SUGGESTIONS DO YOU HAVE FOR SERVICE IMPROVEMENT AT DCL MEDICAL SERVICES?</span>
+              <span className="text-sm font-medium text-ink">
+                WHAT SUGGESTIONS DO YOU HAVE FOR SERVICE IMPROVEMENT AT DCL
+                MEDICAL SERVICES?
+              </span>
               <Textarea
                 {...register("improvementSuggestion")}
                 rows={3}
@@ -306,7 +411,12 @@ export function FeedbackDialog() {
               className="hidden"
             />
 
-            <Button type="submit" size="lg" className="h-12 text-base" disabled={pending || isSubmitting}>
+            <Button
+              type="submit"
+              size="lg"
+              className="h-12 text-base"
+              disabled={pending || isSubmitting}
+            >
               {pending || isSubmitting ? (
                 <>
                   <LoaderCircle aria-hidden className="animate-spin" />
@@ -317,7 +427,8 @@ export function FeedbackDialog() {
               )}
             </Button>
             <p className="m-0 text-center text-[12.5px] leading-[1.6] text-moss">
-              A copy of your responses will be emailed to the address that you provided.
+              A copy of your responses will be emailed to the address that you
+              provided.
             </p>
           </form>
         )}

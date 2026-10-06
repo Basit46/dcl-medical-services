@@ -30,14 +30,7 @@ export const site = {
   title: "DCL Medical Services (Deji Clinic) — Hospital in Ketu, Lagos",
   description:
     "DCL Medical Services, formerly Deji Clinic, is a 24-hour hospital in Ketu and Iju-Ishaga, Lagos. Maternity, lab, ultrasound, physiotherapy and 70+ HMO plans accepted.",
-  areasServed: [
-    "Ketu",
-    "Alapere",
-    "Ogudu",
-    "Iju Ishaga",
-    "Agbado",
-    "Lagos",
-  ],
+  areasServed: ["Ketu", "Alapere", "Ogudu", "Iju Ishaga", "Agbado", "Lagos"],
   keywords: [
     "hospital in Ketu",
     "hospitals in Ketu",
@@ -191,7 +184,6 @@ export const labOpeningHours = [
       { days: "Monday–Friday", time: "8:00 am–5:00 pm" },
       { days: "Saturday", time: "9:00 am–1:00 pm" },
     ],
-    note: "Sunday hours were not provided. Please contact the unit to confirm.",
   },
 ];
 
@@ -291,7 +283,6 @@ export const testimonials = [
 export const navLinks = [
   { href: "#services", label: "Services" },
   { href: "#about", label: "About" },
-  { href: "/articles", label: "Articles" },
   { href: "#hmo", label: "HMOs" },
   { href: "#gallery", label: "Gallery" },
   { href: "#testimonials", label: "Patients" },

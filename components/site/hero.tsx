@@ -37,15 +37,6 @@ export function Hero() {
               Chat with Us
             </ChatTrigger>
           </div>
-
-          <div className="mt-[30px] flex flex-wrap gap-x-[18px] gap-y-2 border-t border-ink/15 pt-5 text-[12.5px] tracking-[0.06em] text-moss">
-            {highlights.map((item, i) => (
-              <span key={item} className="contents">
-                {i > 0 && <span className="text-gold">·</span>}
-                <span>{item}</span>
-              </span>
-            ))}
-          </div>
         </div>
 
         <div className="border border-ink/15">

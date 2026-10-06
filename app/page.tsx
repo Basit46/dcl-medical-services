@@ -1,4 +1,5 @@
 import { About } from "@/components/site/about";
+import { Articles } from "@/components/site/articles";
 import { ChatProvider } from "@/components/site/chat";
 import { SiteFooter } from "@/components/site/footer";
 import { SiteHeader } from "@/components/site/header";
@@ -10,7 +11,7 @@ import { Testimonials } from "@/components/site/reviews";
 import { Services } from "@/components/site/services";
 import { clinicJsonLd } from "@/lib/structured-data";
 
-export default function Home() {
+export default async function Home() {
   return (
     <ChatProvider>
       <script
@@ -28,6 +29,7 @@ export default function Home() {
           <Hmo />
           <Gallery />
           <Testimonials />
+          <Articles />
           <Locations />
         </main>
         <SiteFooter />

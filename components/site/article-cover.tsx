@@ -57,9 +57,6 @@ export function ArticleCover({ article, featured = false }: ArticleCoverProps) {
           </div>
         </>
       )}
-      <div className="absolute right-5 bottom-5 inline-flex size-10 items-center justify-center rounded-full border border-white/80 bg-white/85 text-primary-700 shadow-sm transition-transform duration-300 group-hover/cover:translate-x-1 group-hover/cover:-translate-y-1">
-        <ArrowUpRight size={18} />
-      </div>
     </div>
   );
 }
