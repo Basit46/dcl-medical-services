@@ -25,7 +25,7 @@ export const director = {
 } as const;
 
 export const site = {
-  url: "https://dcl-medical-services.vercel.app",
+  url: "https://www.dclmedicalservices.com.ng",
   locale: "en_NG",
   title: "DCL Medical Services (Deji Clinic) — Hospital in Ketu, Lagos",
   description:
