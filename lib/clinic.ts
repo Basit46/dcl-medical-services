@@ -184,6 +184,7 @@ export const labOpeningHours = [
       { days: "Monday–Friday", time: "8:00 am–5:00 pm" },
       { days: "Saturday", time: "9:00 am–1:00 pm" },
     ],
+    note: "",
   },
 ];
 
