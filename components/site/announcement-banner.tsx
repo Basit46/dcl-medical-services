@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +21,10 @@ export function AnnouncementBanner({
 }) {
   const [dismissedId, setDismissedId] = useState<string | null>(null);
   const [expiryTime, setExpiryTime] = useState(0);
+  const pathname = usePathname();
+
+  const onStudio =
+    pathname === "/studio" || pathname?.startsWith("/studio/") === true;
 
   useEffect(() => {
     if (!announcement?.expiresAt) return;
@@ -35,6 +40,8 @@ export function AnnouncementBanner({
     ? Date.parse(announcement.expiresAt)
     : null;
   const expired = expiresAt !== null && expiryTime >= expiresAt;
+
+  if (onStudio) return null;
 
   return (
     <Dialog
