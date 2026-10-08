@@ -1,7 +1,14 @@
-import { ChatTrigger } from "@/components/site/chat";
-import { callBothBranches, clinic, hmoPlans } from "@/lib/clinic";
+"use client";
+
+import { useState } from "react";
+import { clinic, hmoPlans } from "@/lib/clinic";
+
+const PREVIEW_COUNT = 24;
 
 export function Hmo() {
+  const [expanded, setExpanded] = useState(false);
+  const visiblePlans = expanded ? hmoPlans : hmoPlans.slice(0, PREVIEW_COUNT);
+
   return (
     <section
       id="hmo"
@@ -25,7 +32,7 @@ export function Hmo() {
         </p>
 
         <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-px border border-white/20 bg-white/20">
-          {hmoPlans.map((plan) => (
+          {visiblePlans.map((plan) => (
             <div
               key={plan}
               className="bg-primary-900 px-[18px] py-4 text-sm text-surface"
@@ -34,6 +41,16 @@ export function Hmo() {
             </div>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          className="mt-6 min-h-11 border border-white/40 px-5 py-3 text-sm font-bold tracking-[0.05em] text-surface hover:bg-white/10"
+        >
+          {expanded
+            ? "Show less"
+            : `View more (${hmoPlans.length - PREVIEW_COUNT} more plans)`}
+        </button>
       </div>
     </section>
   );

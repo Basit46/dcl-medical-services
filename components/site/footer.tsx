@@ -32,7 +32,7 @@ export function SiteFooter() {
               href={clinic.directorLine.href}
               className="tnum text-[14.5px] text-cream"
             >
-              Medical Director&rsquo;s line — {clinic.directorLine.label}
+              {clinic.directorLine.label}
             </a>
             <a
               href={`mailto:${clinic.email}`}

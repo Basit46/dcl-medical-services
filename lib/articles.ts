@@ -19,12 +19,12 @@ export const articles: Article[] = [
     slug: "welcome-to-dcl-medical-services",
     title: "Welcome to DCL Medical Services",
     excerpt:
-      "Established as Deji Clinic Ltd in 1985, DCL Medical Services provides primary and secondary care from its Ketu and Iju-Ishaga units.",
+      "Established decades ago as Deji Clinic Ltd, DCL Medical Services provides primary and secondary care from its Ketu and Iju-Ishaga units.",
     publishedAt: "2026-10-04",
     body: [
       {
         type: "paragraph",
-        text: "DCL Medical Services was established as Deji Clinic Ltd in January 1985. Today, the clinic serves its communities from two units in Lagos: one in Ketu and one in Iju-Ishaga.",
+        text: "DCL Medical Services was established decades ago as Deji Clinic Ltd. Today, the clinic serves its communities from two units in Lagos: one in Ketu and one in Iju-Ishaga.",
       },
       { type: "heading", text: "Primary and secondary care" },
       {

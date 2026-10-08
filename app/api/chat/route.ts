@@ -6,13 +6,14 @@ import {
   director,
   hmoPlans,
   labOpeningHours,
+  scanOpeningHours,
   services,
   site,
 } from "@/lib/clinic";
 import { healthQuestionReply, isMedicalQuestion } from "@/lib/chat-safety";
 
 const facts = [
-  `${clinic.name} (${clinic.legalName}), known to patients as ${clinic.familiarName}. A family clinic in Lagos, Nigeria, established ${clinic.establishedMonth} ${clinic.established}. ${clinic.careDescription} Motto: "${clinic.tagline}".`,
+  `${clinic.name} (${clinic.legalName}), known to patients as ${clinic.familiarName}. A family clinic in Lagos, Nigeria, established decades ago. ${clinic.careDescription} Motto: "${clinic.tagline}".`,
   `Opening hours: ${clinic.openingHours}`,
   `Branches: ${branches
     .map((b) => `${b.name} — ${b.address}, Post Code ${b.postcode}, phone ${b.tel.label}`)
@@ -22,6 +23,7 @@ const facts = [
   `Services: ${services.map((s) => `${s.name} — ${s.desc}`).join("; ")}.`,
   `Clinic schedules: ${clinicSchedules.map((item) => `${item.name}: ${item.details}`).join("; ")}.`,
   `Laboratory opening hours: ${labOpeningHours.map((location) => `${location.branch}: ${location.hours.map((item) => `${item.days} ${item.time}`).join(", ")}${location.note ? `. ${location.note}` : ""}`).join("; ")}.`,
+  `Scan services opening hours: ${scanOpeningHours.map((location) => `${location.branch}: ${location.hours.map((item) => `${item.days} ${item.time}`).join(", ")}`).join("; ")}.`,
   `Appointment-based clinics: ${appointmentClinics.join(", ")}.`,
   `Clients: ${clinic.clientTypes.join(", ")}. ${clinic.workforceDescription}`,
   `HMOs: ${clinic.hmoCount} plans accepted at both branches, including ${hmoPlans.join(", ")}.`,

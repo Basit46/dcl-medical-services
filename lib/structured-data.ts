@@ -30,7 +30,6 @@ export function clinicJsonLd() {
     areaServed: [...site.areasServed],
     slogan: clinic.tagline,
     email: clinic.email,
-    foundingDate: String(clinic.established),
     image: `${site.url}/opengraph-image`,
     priceRange: "$$",
     currenciesAccepted: "NGN",

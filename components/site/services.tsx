@@ -2,8 +2,43 @@ import {
   appointmentClinics,
   clinicSchedules,
   labOpeningHours,
+  scanOpeningHours,
   services,
 } from "@/lib/clinic";
+
+type HoursLocation = {
+  branch: string;
+  hours: { days: string; time: string }[];
+  note?: string;
+};
+
+function HoursCard({ location }: { location: HoursLocation }) {
+  return (
+    <div className="border border-primary-100 bg-white p-5 shadow-plate">
+      <h5 className="m-0 mb-4 text-base font-bold text-primary-800">
+        {location.branch} branch
+      </h5>
+      <dl className="m-0 flex flex-col gap-3">
+        {location.hours.map((hours) => (
+          <div
+            key={hours.days}
+            className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-b border-primary-50 pb-2 last:border-0 last:pb-0"
+          >
+            <dt className="text-sm text-primary-700">{hours.days}</dt>
+            <dd className="m-0 text-sm font-semibold text-ink">
+              {hours.time}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {location.note && (
+        <p className="m-0 mt-4 text-xs leading-[1.6] text-moss">
+          {location.note}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export function Services() {
   return (
@@ -57,34 +92,18 @@ export function Services() {
             </h4>
             <div className="grid gap-4 sm:grid-cols-2">
               {labOpeningHours.map((location) => (
-                <div
-                  key={location.branch}
-                  className="border border-primary-100 bg-white p-5 shadow-plate"
-                >
-                  <h5 className="m-0 mb-4 text-base font-bold text-primary-800">
-                    {location.branch} branch
-                  </h5>
-                  <dl className="m-0 flex flex-col gap-3">
-                    {location.hours.map((hours) => (
-                      <div
-                        key={hours.days}
-                        className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-b border-primary-50 pb-2 last:border-0 last:pb-0"
-                      >
-                        <dt className="text-sm text-primary-700">
-                          {hours.days}
-                        </dt>
-                        <dd className="m-0 text-sm font-semibold text-ink">
-                          {hours.time}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                  {location.note && (
-                    <p className="m-0 mt-4 text-xs leading-[1.6] text-moss">
-                      {location.note}
-                    </p>
-                  )}
-                </div>
+                <HoursCard key={location.branch} location={location} />
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h4 className="m-0 mb-4 font-display text-3xl font-normal">
+              Scan services opening hours
+            </h4>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {scanOpeningHours.map((location) => (
+                <HoursCard key={location.branch} location={location} />
               ))}
             </div>
           </div>

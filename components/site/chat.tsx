@@ -40,7 +40,7 @@ const answers: Record<AnswerKey, { label: string; q: string; a: string }> = {
   hmo: {
     label: "Do you accept my HMO plan?",
     q: "Do you accept my HMO plan?",
-    a: `Yes — we accept over 70 HMO plans at both branches, including AXA Mansard, Leadway Assurance, Clearline, Clearline International, Hygeia HMO, HCI Healthcare, Healthcare Security Limited and Princeton Health.\n\nTell me the name of your plan and I will pass it to the front desk, or call your branch with your card and we will confirm on the spot — ${callBothBranches}.`,
+    a: `Yes — we accept over 70 HMO plans at both branches, including AXA Mansard, Leadway Assurance, Clearline, Clearline International, Hygeia HMO, United Healthcare International, Healthcare Security Limited and Princeton Health.\n\nTell me the name of your plan and I will pass it to the front desk, or call your branch with your card and we will confirm on the spot — ${callBothBranches}.`,
   },
   services: {
     label: "What services do you offer?",
