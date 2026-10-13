@@ -102,46 +102,55 @@ export const services = [
     num: "01",
     name: "Outpatient Treatment Services",
     desc: "Primary and secondary care without hospital admission.",
+    image: "/hos1.jpg",
   },
   {
     num: "02",
     name: "Admission Services",
     desc: "Inpatient care when treatment requires a hospital stay.",
+    image: "/hos11.jpg",
   },
   {
     num: "03",
     name: "Surgeries",
     desc: "Surgical procedures as part of the clinic's care offering.",
+    image: "/hos2.jpg",
   },
   {
     num: "04",
     name: "Maternity Services",
     desc: "Support and clinical care for maternity patients.",
+    image: "/hos3.webp",
   },
   {
     num: "05",
     name: "Immunisation Services",
     desc: "Vaccination services for patients.",
+    image: "/hos10.jpg",
   },
   {
     num: "06",
     name: "Wellness & Health Checks",
     desc: "Preventive check-ups and counselling services.",
+    image: "/hos9.jpg",
   },
   {
     num: "07",
     name: "Laboratory Services",
     desc: "Clinical testing to support diagnosis and care.",
+    image: "/hos8.jpg",
   },
   {
     num: "08",
     name: "Ultrasound Services",
     desc: "Ultrasound imaging for clinical assessment.",
+    image: "/hos5.jpg",
   },
   {
     num: "09",
     name: "Physiotherapy Services",
     desc: "Physiotherapy care to support movement and rehabilitation.",
+    image: "/hos6.jpg",
   },
 ];
 
@@ -186,9 +195,7 @@ export const scanOpeningHours = [
   },
   {
     branch: "Iju-Ishaga",
-    hours: [
-      { days: "Wednesday and Saturday", time: "10:00 am–1:00 pm" },
-    ],
+    hours: [{ days: "Wednesday and Saturday", time: "10:00 am–1:00 pm" }],
     note: "",
   },
 ];

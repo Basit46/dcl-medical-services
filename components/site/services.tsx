@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   appointmentClinics,
   clinicSchedules,
@@ -53,20 +54,30 @@ export function Services() {
 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-[26px]">
         {services.map((service) => (
-          <div
+          <article
             key={service.num}
-            className="flex min-h-32 flex-col gap-1.5 border border-ink/15 bg-surface p-5 shadow-plate hover:border-pine"
+            className="group relative flex min-h-[260px] flex-col justify-end gap-1.5 overflow-hidden border border-ink/15 bg-surface p-5 shadow-plate transition-shadow duration-300 hover:shadow-panel"
           >
-            <span className="tnum text-[11px] tracking-[0.16em] text-pine">
-              {service.num}
-            </span>
-            <h3 className="m-0 font-body text-[21px] font-bold">
-              {service.name}
-            </h3>
-            <p className="m-0 text-[13.5px] leading-[1.6] text-moss">
-              {service.desc}
-            </p>
-          </div>
+            <Image
+              src={service.image}
+              alt={service.name}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-primary-900/92 via-primary-900/55 to-primary-900/15" />
+            <div className="relative">
+              <span className="tnum block text-[11px] tracking-[0.16em] text-primary-100">
+                {service.num}
+              </span>
+              <h3 className="m-0 font-body text-[21px] font-bold text-white">
+                {service.name}
+              </h3>
+              <p className="m-0 text-[13.5px] leading-[1.6] text-primary-50/90">
+                {service.desc}
+              </p>
+            </div>
+          </article>
         ))}
       </div>
 

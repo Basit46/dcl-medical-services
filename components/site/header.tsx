@@ -40,19 +40,16 @@ export function SiteHeader() {
           <Link
             href="/#top"
             aria-label={clinic.name}
-            className="flex flex-none flex-col items-start no-underline"
+            className="order-2 flex flex-none flex-col items-start justify-center no-underline lg:order-none"
           >
             <Image
-              src="/dcl-logo.jpg"
+              src="/dcl-logo.webp"
               alt={clinic.name}
               width={1200}
               height={200}
               priority
               className="h-auto w-[170px] sm:w-[215px]"
             />
-            <span className="ml-1 mt-0.5 text-[9px] font-bold tracking-[0.2em] text-primary-700 uppercase">
-              Ketu · Iju-Ishaga
-            </span>
           </Link>
 
           <div className="hidden items-center gap-2 lg:flex">
@@ -71,7 +68,7 @@ export function SiteHeader() {
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="order-1 flex items-center gap-2 lg:order-2 lg:hidden">
             <Link
               href="/articles"
               className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary-600 px-3.5 py-2 text-[11px] font-bold tracking-[0.04em] text-white no-underline shadow-sm shadow-primary-600/25 transition-colors hover:bg-primary-700 lg:hidden"
