@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 import { clinic, site } from "@/lib/clinic";
 import { Analytics } from "@vercel/analytics/next";
 import { AnnouncementBanner } from "@/components/site/announcement-banner";
+import { HmoPlansProvider } from "@/components/site/hmo-plans-provider";
 import { getActiveAnnouncement } from "@/sanity/lib/announcement";
+import { getHmoPlans } from "@/sanity/lib/hmos";
 
 const frankRuhlLibre = Frank_Ruhl_Libre({
   subsets: ["latin"],
@@ -74,6 +76,7 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const announcement = await getActiveAnnouncement();
+  const hmoPlans = await getHmoPlans();
 
   return (
     <html
@@ -86,7 +89,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-paper font-body text-ink">
         <AnnouncementBanner announcement={announcement} />
-        {children}
+        <HmoPlansProvider plans={hmoPlans}>{children}</HmoPlansProvider>
 
         <Analytics />
       </body>

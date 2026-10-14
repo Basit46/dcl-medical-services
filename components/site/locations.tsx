@@ -5,10 +5,6 @@ export function Locations() {
   return (
     <section id="locations" className="mx-auto max-w-[1250px] px-5 py-14">
       <h2 className="m-0 mb-2 font-display text-4xl font-normal">Our units</h2>
-      <p className="m-0 mb-6 max-w-[48ch] text-[15px] leading-[1.7] text-moss">
-        Find contact details and directions for our hospitals in Ketu,
-        Alapere and Iju-Ishaga, Lagos.
-      </p>
 
       <BranchMap />
 

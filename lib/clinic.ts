@@ -9,7 +9,7 @@ export const clinic = {
   workforceDescription:
     "Customer-friendly services from a motivated, courteous and professional workforce.",
   email: "dejiclinic2005@yahoo.com",
-  directorLine: { label: "0803 307 2123", href: "tel:08033072123" },
+  whatsappLine: { label: "0803 307 2123", href: "https://wa.me/2348033072123" },
   openingHours:
     "Open 24 hours a day, 7 days a week at both branches — including emergencies and maternity.",
   hmoCount: "70+",
@@ -102,13 +102,13 @@ export const services = [
     num: "01",
     name: "Outpatient Treatment Services",
     desc: "Primary and secondary care without hospital admission.",
-    image: "/hos1.jpg",
+    image: "/hos15.jpg",
   },
   {
     num: "02",
     name: "Admission Services",
     desc: "Inpatient care when treatment requires a hospital stay.",
-    image: "/hos11.jpg",
+    image: "/hos13.jpg",
   },
   {
     num: "03",
@@ -120,7 +120,7 @@ export const services = [
     num: "04",
     name: "Maternity Services",
     desc: "Support and clinical care for maternity patients.",
-    image: "/hos3.webp",
+    image: "/hos12.jpg",
   },
   {
     num: "05",
@@ -134,6 +134,7 @@ export const services = [
     desc: "Preventive check-ups and counselling services.",
     image: "/hos9.jpg",
   },
+
   {
     num: "07",
     name: "Laboratory Services",
@@ -144,13 +145,13 @@ export const services = [
     num: "08",
     name: "Ultrasound Services",
     desc: "Ultrasound imaging for clinical assessment.",
-    image: "/hos5.jpg",
+    image: "/hos3.webp",
   },
   {
     num: "09",
     name: "Physiotherapy Services",
     desc: "Physiotherapy care to support movement and rehabilitation.",
-    image: "/hos6.jpg",
+    image: "/hos14.jpg",
   },
 ];
 
@@ -198,6 +199,17 @@ export const scanOpeningHours = [
     hours: [{ days: "Wednesday and Saturday", time: "10:00 am–1:00 pm" }],
     note: "",
   },
+];
+
+export const OTHER_SERVICE = "Others (Specify)";
+
+export const bookableServices = [
+  "Gynaecology",
+  "Orthopaedics",
+  "Physiotherapy",
+  "Urology",
+  "ENT",
+  OTHER_SERVICE,
 ];
 
 export const appointmentClinics = [

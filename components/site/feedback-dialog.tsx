@@ -1,14 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, type ReactNode } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  CheckCircle,
-  LoaderCircle,
-  LucideSendHorizonal,
-  X,
-} from "lucide-react";
+import { CheckCircle, LoaderCircle, LucideSendHorizonal } from "lucide-react";
 import { submitFeedback } from "@/app/actions/feedback";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,44 +26,144 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { branches, callBothBranches } from "@/lib/clinic";
+import { callBothBranches } from "@/lib/clinic";
 import {
+  branchOptions,
+  contactOptions,
+  discussedOptions,
   feedbackSchema,
+  genderOptions,
   initialFeedbackFormValues,
   type FeedbackFormValues,
 } from "@/lib/feedback-form";
 import { cn } from "@/lib/utils";
 
-const genderOptions = [
-  { value: "MALE", label: "MALE" },
-  { value: "FEMALE", label: "FEMALE" },
-  { value: "OTHERS", label: "OTHERS" },
-] as const;
+type ChoiceField =
+  | "gender"
+  | "discussedWithStaff"
+  | "contactMethod"
+  | "branch";
 
-const discussedOptions = [
-  { value: "YES", label: "YES" },
-  { value: "NO", label: "NO" },
-  { value: "NOT_INTERESTED", label: "I AM NOT INTERESTED" },
-] as const;
+function Field({
+  id,
+  label,
+  required,
+  error,
+  children,
+}: {
+  id: string;
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: ReactNode;
+}) {
+  const errorId = `${id}-error`;
+  return (
+    <div className="flex flex-col items-start gap-1.5">
+      <label
+        htmlFor={id}
+        className="text-sm font-medium text-ink"
+      >
+        {label}
+        {required ? (
+          <span aria-hidden="true" className="text-red-700">
+            {" "}
+            *
+          </span>
+        ) : (
+          <span className="ml-1.5 text-[12.5px] font-normal text-moss">
+            (optional)
+          </span>
+        )}
+      </label>
+      {children}
+      {error ? (
+        <span id={errorId} role="alert" className="text-[12.5px] text-red-700">
+          {error}
+        </span>
+      ) : null}
+    </div>
+  );
+}
 
-const contactOptions = [
-  { value: "WHATSAPP", label: "WHATSAPP NO" },
-  { value: "SMS", label: "SMS" },
-  { value: "EMAIL", label: "E MAIL" },
-] as const;
-
-const branchOptions = branches.map((b) => ({
-  value: b.id,
-  label: b.id === "ketu" ? "DOYIN OMOLOLU KETU" : "AGBADO RD IJU-ISHAGA",
-}));
+function ChoiceFieldset({
+  name,
+  legend,
+  required,
+  error,
+  options,
+  control,
+}: {
+  name: ChoiceField;
+  legend: string;
+  required?: boolean;
+  error?: string;
+  options: readonly { value: string; label: string }[];
+  control: ReturnType<typeof useForm<FeedbackFormValues>>["control"];
+}) {
+  const errorId = `${name}-error`;
+  return (
+    <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+      <legend className="mb-1.5 text-sm font-medium text-ink">
+        {legend}
+        {required ? (
+          <span aria-hidden="true" className="text-red-700">
+            {" "}
+            *
+          </span>
+        ) : null}
+      </legend>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <RadioGroup
+            id={name}
+            name={name}
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : undefined}
+            className="grid grid-cols-3 gap-2"
+          >
+            {options.map((option) => (
+              <Label
+                key={option.value}
+                className={cn(
+                  "flex cursor-pointer items-center gap-2 rounded-lg border p-3.5 transition-colors",
+                  field.value === option.value
+                    ? "border-primary-600 bg-primary-50"
+                    : "border-border hover:border-primary-400",
+                )}
+              >
+                <RadioGroupItem value={option.value} />
+                <span className="text-base font-medium text-ink">
+                  {option.label}
+                </span>
+              </Label>
+            ))}
+          </RadioGroup>
+        )}
+      />
+      {error ? (
+        <span id={errorId} role="alert" className="text-[12.5px] text-red-700">
+          {error}
+        </span>
+      ) : null}
+    </fieldset>
+  );
+}
 
 export function FeedbackDialog() {
   const [open, setOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submittedName, setSubmittedName] = useState("");
-  const [pending, setPending] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [honeypot, setHoneypot] = useState("");
 
   const {
+    control,
     register,
     handleSubmit,
     reset,
@@ -83,65 +178,53 @@ export function FeedbackDialog() {
     setOpen(next);
     if (!next) {
       setShowSuccess(false);
+      setServerError("");
       reset(initialFeedbackFormValues);
     }
   };
 
   const startAnother = () => {
     setShowSuccess(false);
+    setServerError("");
     reset(initialFeedbackFormValues);
   };
 
   const onSubmit = async (data: FeedbackFormValues) => {
-    setPending(true);
-    try {
-      const formData = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-
-      const result = await submitFeedback(
-        { status: "idle", message: "" },
-        formData,
-      );
-
-      if (result.status === "success") {
-        setSubmittedName(`${data.firstName} ${data.surname}`);
-        setShowSuccess(true);
-      } else {
-        setError("suggestionComplaint", {
-          type: "server",
-          message: result.message,
-        });
-      }
-    } finally {
-      setPending(false);
+    setServerError("");
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(data)) {
+      formData.append(key, value ?? "");
     }
+    formData.append("website", honeypot);
+
+    const result = await submitFeedback(
+      { status: "idle", message: "" },
+      formData,
+    );
+
+    if (result.status === "success") {
+      setSubmittedName(`${data.firstName} ${data.surname}`.trim());
+      setShowSuccess(true);
+      return;
+    }
+
+    if (result.fields) {
+      let firstField: keyof FeedbackFormValues | null = null;
+      for (const [field, message] of Object.entries(result.fields)) {
+        setError(field as keyof FeedbackFormValues, {
+          type: "server",
+          message,
+        });
+        firstField ??= field as keyof FeedbackFormValues;
+      }
+      if (firstField) setServerError(result.message);
+      return;
+    }
+
+    setServerError(result.message);
   };
 
-  const renderRadioGroup = (
-    options: readonly { value: string; label: string }[],
-    name: keyof FeedbackFormValues,
-  ) => (
-    <RadioGroup
-      aria-label={name}
-      {...register(name)}
-      className="grid grid-cols-3 gap-2"
-    >
-      {options.map((option) => (
-        <Label
-          key={option.value}
-          className={cn(
-            "flex cursor-pointer items-center gap-2 rounded-lg border p-3.5 transition-colors",
-            "border-border hover:border-primary-400",
-          )}
-        >
-          <RadioGroupItem value={option.value} className="mt-0.5" />
-          <span className="text-base font-medium text-ink">{option.label}</span>
-        </Label>
-      ))}
-    </RadioGroup>
-  );
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -157,8 +240,9 @@ export function FeedbackDialog() {
             Send Feedback
           </DialogTitle>
           <DialogDescription className="text-[13px] leading-[1.6] text-primary-800">
-            Share your suggestions or complaints about your visit. Your feedback
-            helps us improve.
+            Share your suggestions or complaints about your visit. Fields
+            marked <span className="font-bold">*</span> are required. Your
+            feedback goes straight to our management team.
           </DialogDescription>
         </DialogHeader>
 
@@ -193,218 +277,246 @@ export function FeedbackDialog() {
         ) : (
           <form
             onSubmit={handleSubmit(onSubmit)}
+            noValidate
             className="flex flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6"
           >
+            {serverError ? (
+              <p
+                role="alert"
+                className="m-0 border border-red-200 bg-red-50 px-3.5 py-3 text-sm text-red-800"
+              >
+                {serverError}
+              </p>
+            ) : null}
+
             <div className="grid gap-4 sm:grid-cols-2">
-              <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">Email *</span>
+              <Field
+                id="email"
+                label="Email"
+                required
+                error={errors.email?.message}
+              >
                 <Input
+                  id="email"
                   {...register("email")}
                   type="email"
+                  inputMode="email"
                   autoComplete="email"
                   placeholder="you@example.com"
                   aria-invalid={Boolean(errors.email)}
+                  aria-describedby={errors.email ? "email-error" : undefined}
                 />
-                {errors.email && (
-                  <span className="text-[12.5px] text-red-700">
-                    {errors.email.message}
-                  </span>
-                )}
-              </Label>
+              </Field>
 
-              <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">
-                  Branch Visited *
-                </span>
-                <Select {...register("branch")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select branch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {branchOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.branch && (
-                  <span className="text-[12.5px] text-red-700">
-                    {errors.branch.message}
-                  </span>
-                )}
-              </Label>
+              <Field
+                id="branch"
+                label="Branch visited"
+                required
+                error={errors.branch?.message}
+              >
+                <Controller
+                  name="branch"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      onOpenChange={(next) => {
+                        if (!next) field.onBlur();
+                      }}
+                    >
+                      <SelectTrigger
+                        id="branch"
+                        aria-invalid={Boolean(errors.branch)}
+                        aria-describedby={
+                          errors.branch ? "branch-error" : undefined
+                        }
+                        className="w-full"
+                      >
+                        <SelectValue placeholder="Select branch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {branchOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </Field>
             </div>
 
-            <Label className="flex flex-col items-start gap-1.5">
-              <span className="text-sm font-medium text-ink">
-                PHONE NO/WHATSAPP NO *
-              </span>
+            <Field
+              id="phone"
+              label="Phone / WhatsApp number"
+              required
+              error={errors.phone?.message}
+            >
               <Input
+                id="phone"
                 {...register("phone")}
                 type="tel"
+                inputMode="tel"
                 autoComplete="tel"
                 placeholder="08012345678"
                 aria-invalid={Boolean(errors.phone)}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
               />
-              {errors.phone && (
-                <span className="text-[12.5px] text-red-700">
-                  {errors.phone.message}
-                </span>
-              )}
-            </Label>
+            </Field>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">
-                  Date of Clinic visit *
-                </span>
+              <Field
+                id="visitDate"
+                label="Date of clinic visit"
+                required
+                error={errors.visitDate?.message}
+              >
                 <Input
+                  id="visitDate"
                   {...register("visitDate")}
                   type="date"
+                  max={today}
                   autoComplete="off"
                   aria-invalid={Boolean(errors.visitDate)}
+                  aria-describedby={
+                    errors.visitDate ? "visitDate-error" : undefined
+                  }
                 />
-                {errors.visitDate && (
-                  <span className="text-[12.5px] text-red-700">
-                    {errors.visitDate.message}
-                  </span>
-                )}
-              </Label>
+              </Field>
 
-              <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">
-                  Time of visit *
-                </span>
+              <Field
+                id="visitTime"
+                label="Time of visit"
+                required
+                error={errors.visitTime?.message}
+              >
                 <Input
+                  id="visitTime"
                   {...register("visitTime")}
                   type="time"
                   autoComplete="off"
                   aria-invalid={Boolean(errors.visitTime)}
+                  aria-describedby={
+                    errors.visitTime ? "visitTime-error" : undefined
+                  }
                 />
-                {errors.visitTime && (
-                  <span className="text-[12.5px] text-red-700">
-                    {errors.visitTime.message}
-                  </span>
-                )}
-              </Label>
+              </Field>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">SURNAME *</span>
+              <Field
+                id="surname"
+                label="Surname"
+                required
+                error={errors.surname?.message}
+              >
                 <Input
+                  id="surname"
                   {...register("surname")}
                   autoComplete="family-name"
                   aria-invalid={Boolean(errors.surname)}
+                  aria-describedby={
+                    errors.surname ? "surname-error" : undefined
+                  }
                 />
-                {errors.surname && (
-                  <span className="text-[12.5px] text-red-700">
-                    {errors.surname.message}
-                  </span>
-                )}
-              </Label>
+              </Field>
 
-              <Label className="flex flex-col items-start gap-1.5">
-                <span className="text-sm font-medium text-ink">
-                  FIRST NAME *
-                </span>
+              <Field
+                id="firstName"
+                label="First name"
+                required
+                error={errors.firstName?.message}
+              >
                 <Input
+                  id="firstName"
                   {...register("firstName")}
                   autoComplete="given-name"
                   aria-invalid={Boolean(errors.firstName)}
+                  aria-describedby={
+                    errors.firstName ? "firstName-error" : undefined
+                  }
                 />
-                {errors.firstName && (
-                  <span className="text-[12.5px] text-red-700">
-                    {errors.firstName.message}
-                  </span>
-                )}
-              </Label>
+              </Field>
             </div>
 
-            <Label className="flex flex-col items-start gap-1.5">
-              <span className="text-sm font-medium text-ink">
-                YOUR HMO [IF NOT CASH PAYING CUSTOMER]
-              </span>
+            <Field id="hmo" label="Your HMO" error={errors.hmo?.message}>
               <Input
+                id="hmo"
                 {...register("hmo")}
                 autoComplete="off"
-                placeholder="e.g., Hygeia HMO, AXA Mansard, etc."
+                placeholder="If you did not pay cash, e.g. AXA Mansard"
               />
-            </Label>
+            </Field>
 
-            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className="mb-2 text-sm font-semibold text-ink">
-                GENDER
-              </legend>
-              {renderRadioGroup(genderOptions, "gender")}
-              {errors.gender && (
-                <span className="text-[12.5px] text-red-700">
-                  {errors.gender.message}
-                </span>
-              )}
-            </fieldset>
+            <ChoiceFieldset
+              name="gender"
+              legend="Gender"
+              required
+              options={genderOptions}
+              control={control}
+              error={errors.gender?.message}
+            />
 
-            <Label className="flex flex-col items-start gap-1.5">
-              <span className="text-sm font-medium text-ink">
-                WHAT SUGGESTION OR COMPLAINTS DO YOU HAVE ABOUT HOW YOU WERE
-                SERVED? *
-              </span>
+            <Field
+              id="suggestionComplaint"
+              label="What suggestions or complaints do you have about how you were served?"
+              required
+              error={errors.suggestionComplaint?.message}
+            >
               <Textarea
+                id="suggestionComplaint"
                 {...register("suggestionComplaint")}
                 rows={4}
-                placeholder="Describe your experience, suggestion, or complaint..."
+                placeholder="Describe your experience, suggestion or complaint..."
                 aria-invalid={Boolean(errors.suggestionComplaint)}
+                aria-describedby={
+                  errors.suggestionComplaint
+                    ? "suggestionComplaint-error"
+                    : undefined
+                }
                 className="min-h-[100px] resize-y"
               />
-              {errors.suggestionComplaint && (
-                <span className="text-[12.5px] text-red-700">
-                  {errors.suggestionComplaint.message}
-                </span>
-              )}
-            </Label>
+            </Field>
 
-            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className="mb-2 text-sm font-semibold text-ink">
-                WERE YOU ABLE TO DISCUSS IT WITH THE HEAD NURSE OR THE DR ON
-                DUTY
-              </legend>
-              {renderRadioGroup(discussedOptions, "discussedWithStaff")}
-              {errors.discussedWithStaff && (
-                <span className="text-[12.5px] text-red-700">
-                  {errors.discussedWithStaff.message}
-                </span>
-              )}
-            </fieldset>
+            <ChoiceFieldset
+              name="discussedWithStaff"
+              legend="Were you able to discuss it with the head nurse or the doctor on duty?"
+              required
+              options={discussedOptions}
+              control={control}
+              error={errors.discussedWithStaff?.message}
+            />
 
-            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-              <legend className="mb-2 text-sm font-semibold text-ink">
-                HOW BEST CAN YOU BE REACHED *
-              </legend>
-              {renderRadioGroup(contactOptions, "contactMethod")}
-              {errors.contactMethod && (
-                <span className="text-[12.5px] text-red-700">
-                  {errors.contactMethod.message}
-                </span>
-              )}
-            </fieldset>
+            <ChoiceFieldset
+              name="contactMethod"
+              legend="How best can you be reached?"
+              required
+              options={contactOptions}
+              control={control}
+              error={errors.contactMethod?.message}
+            />
 
-            <Label className="flex flex-col items-start gap-1.5">
-              <span className="text-sm font-medium text-ink">
-                WHAT SUGGESTIONS DO YOU HAVE FOR SERVICE IMPROVEMENT AT DCL
-                MEDICAL SERVICES?
-              </span>
+            <Field
+              id="improvementSuggestion"
+              label="What suggestions do you have for service improvement at DCL Medical Services?"
+              error={errors.improvementSuggestion?.message}
+            >
               <Textarea
+                id="improvementSuggestion"
                 {...register("improvementSuggestion")}
                 rows={3}
-                placeholder="Optional: Any additional suggestions for improvement..."
+                placeholder="Anything else that would help us improve..."
                 className="min-h-[80px] resize-y"
               />
-            </Label>
+            </Field>
 
             <input
               type="text"
               name="website"
+              value={honeypot}
+              onChange={(event) => setHoneypot(event.target.value)}
               tabIndex={-1}
               autoComplete="off"
               aria-hidden
@@ -415,9 +527,9 @@ export function FeedbackDialog() {
               type="submit"
               size="lg"
               className="h-12 text-base"
-              disabled={pending || isSubmitting}
+              disabled={isSubmitting}
             >
-              {pending || isSubmitting ? (
+              {isSubmitting ? (
                 <>
                   <LoaderCircle aria-hidden className="animate-spin" />
                   Sending…
@@ -427,8 +539,8 @@ export function FeedbackDialog() {
               )}
             </Button>
             <p className="m-0 text-center text-[12.5px] leading-[1.6] text-moss">
-              A copy of your responses will be emailed to the address that you
-              provided.
+              Your feedback is emailed to our management team, and they reply to
+              the email address you gave above.
             </p>
           </form>
         )}

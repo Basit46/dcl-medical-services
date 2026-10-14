@@ -27,14 +27,11 @@ export function Hero() {
                 type="button"
                 className="inline-flex min-h-[50px] items-center border border-gold bg-gold px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-white hover:bg-gold-deep"
               >
-                Book Appointment
+                Request an Appointment
               </button>
             </BookingDialog>
-            <ChatTrigger
-              intent="book"
-              className="min-h-[50px] border border-ink/30 px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-ink hover:bg-ink/5"
-            >
-              Chat with Us
+            <ChatTrigger className="min-h-[50px] border border-ink/30 px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-ink hover:bg-ink/5">
+              Ask Question
             </ChatTrigger>
           </div>
         </div>

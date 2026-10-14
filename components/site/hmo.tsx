@@ -1,13 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { clinic, hmoPlans } from "@/lib/clinic";
-
-const PREVIEW_COUNT = 24;
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { clinic } from "@/lib/clinic";
+import { Input } from "@/components/ui/input";
+import { useHmoPlans } from "@/components/site/hmo-plans-provider";
+import { filterHmoPlans } from "@/lib/hmo-search";
 
 export function Hmo() {
-  const [expanded, setExpanded] = useState(false);
-  const visiblePlans = expanded ? hmoPlans : hmoPlans.slice(0, PREVIEW_COUNT);
+  const plans = useHmoPlans();
+  const [query, setQuery] = useState("");
+
+  const trimmed = query.trim();
+
+  const visiblePlans = useMemo(
+    () => (trimmed ? filterHmoPlans(plans, query) : []),
+    [plans, query, trimmed],
+  );
 
   return (
     <section
@@ -31,26 +41,55 @@ export function Hmo() {
           covered.
         </p>
 
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-px border border-white/20 bg-white/20">
-          {visiblePlans.map((plan) => (
-            <div
-              key={plan}
-              className="bg-primary-900 px-[18px] py-4 text-sm text-surface"
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <div className="relative w-full sm:max-w-sm">
+            <Input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search plans, e.g. Leadway"
+              aria-label="Search accepted HMO plans"
+              className="h-12 border-white/40 bg-transparent text-surface shadow-none placeholder:text-white/45 focus-visible:border-white/70 focus-visible:ring-white/25"
+            />
+          </div>
+          {trimmed ? (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              className="min-h-11 text-sm font-bold tracking-[0.05em] text-surface underline underline-offset-4 hover:text-primary-300"
             >
-              {plan}
-            </div>
-          ))}
+              Clear
+            </button>
+          ) : null}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setExpanded((value) => !value)}
-          className="mt-6 min-h-11 border border-white/40 px-5 py-3 text-sm font-bold tracking-[0.05em] text-surface hover:bg-white/10"
+        {trimmed ? (
+          visiblePlans.length > 0 ? (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-px border border-white/20 bg-white/20">
+              {visiblePlans.map((plan) => (
+                <div
+                  key={plan}
+                  className="bg-primary-900 px-[18px] py-4 text-sm text-surface"
+                >
+                  {plan}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="border border-white/20 px-[18px] py-8 text-sm text-cream">
+              No plans match “{trimmed}”. Call either branch and we will confirm
+              your plan before you visit.
+            </div>
+          )
+        ) : null}
+
+        <Link
+          href="/hmo"
+          className="mt-6 inline-flex min-h-11 items-center gap-2 border border-white/40 px-5 py-3 text-sm font-bold tracking-[0.05em] text-surface no-underline hover:bg-white/10"
         >
-          {expanded
-            ? "Show less"
-            : `View more (${hmoPlans.length - PREVIEW_COUNT} more plans)`}
-        </button>
+          View full list of {plans.length} plans
+          <ArrowRight aria-hidden className="size-4" />
+        </Link>
       </div>
     </section>
   );

@@ -4,22 +4,22 @@ import {
   clinicSchedules,
   clinic,
   director,
-  hmoPlans,
   labOpeningHours,
   scanOpeningHours,
   services,
   site,
 } from "@/lib/clinic";
-import { healthQuestionReply, isMedicalQuestion } from "@/lib/chat-safety";
+import { healthQuestionReply, isMedicalQuestion, emergencyReply, isEmergency } from "@/lib/chat-safety";
+import { getHmoPlans } from "@/sanity/lib/hmos";
 
-const facts = [
+const buildFacts = (hmoPlans: string[]) => [
   `${clinic.name} (${clinic.legalName}), known to patients as ${clinic.familiarName}. A family clinic in Lagos, Nigeria, established decades ago. ${clinic.careDescription} Motto: "${clinic.tagline}".`,
   `Opening hours: ${clinic.openingHours}`,
   `Branches: ${branches
     .map((b) => `${b.name} — ${b.address}, Post Code ${b.postcode}, phone ${b.tel.label}`)
     .join("; ")}.`,
   `Areas served: ${site.areasServed.join(", ")}. Known to many patients as ${clinic.familiarName}.`,
-  `Email: ${clinic.email}. Director's line: ${clinic.directorLine.label}.`,
+  `Email: ${clinic.email}. WhatsApp line (messages only, do not give as a call number): ${clinic.whatsappLine.label}.`,
   `Services: ${services.map((s) => `${s.name} — ${s.desc}`).join("; ")}.`,
   `Clinic schedules: ${clinicSchedules.map((item) => `${item.name}: ${item.details}`).join("; ")}.`,
   `Laboratory opening hours: ${labOpeningHours.map((location) => `${location.branch}: ${location.hours.map((item) => `${item.days} ${item.time}`).join(", ")}${location.note ? `. ${location.note}` : ""}`).join("; ")}.`,
@@ -28,12 +28,12 @@ const facts = [
   `Clients: ${clinic.clientTypes.join(", ")}. ${clinic.workforceDescription}`,
   `HMOs: ${clinic.hmoCount} plans accepted at both branches, including ${hmoPlans.join(", ")}.`,
   `Medical Director: ${director.name}. ${director.bio}`,
-  `Booking: use the "Book Appointment" button on this page (it opens WhatsApp to the chosen branch with the details ready to send), or call the branch directly. Walk-ins are welcome at both branches.`,
+  `Booking: use the "Request an Appointment" button on this page (it opens a form for requesting an appointment with a specialist, then hands the request to WhatsApp for the chosen branch), or call the branch directly. Specialist clinics available: Gynaecology, Orthopaedics, Physiotherapy, Urology, ENT, or ask for another service under "Others (Specify)". Walk-ins are welcome at both branches.`,
 ].join("\n");
 
-const systemPrompt = `You are the website assistant for ${clinic.name}. Answer visitors' questions using only the facts below.
+const buildSystemPrompt = (hmoPlans: string[]) => `You are the website assistant for ${clinic.name}. Answer visitors' questions using only the facts below.
 
-${facts}
+${buildFacts(hmoPlans)}
 
 Rules:
 - Keep every answer to 1-3 short sentences. Be direct and answer the question first. No greeting, no preamble, no sign-off.
@@ -41,6 +41,7 @@ Rules:
 - Only state what the facts above support. If you do not know, say so in one sentence and give the branch phone numbers.
 - Do not answer questions about health, symptoms, conditions, causes, diagnoses, tests or results, treatment, medication, pregnancy, or what care a person needs. Do not offer reassurance or general medical information.
 - For any medical or health question, reply only with this message: "${healthQuestionReply}".
+- You are not a medical service. If a message describes an emergency, a collapse, breathing difficulty, severe bleeding, unconsciousness, a seizure, an overdose or similar, do not answer it in any way. Reply only with this message: "${emergencyReply}".
 - Answer only administrative questions about the clinic, such as its services, hours, locations, HMO plans, schedules, and appointments.`;
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -88,11 +89,17 @@ export async function POST(request: Request) {
   const latestUserMessage = [...history]
     .reverse()
     .find((message) => message.role === "user");
-  if (latestUserMessage && isMedicalQuestion(latestUserMessage.content)) {
-    return Response.json({ reply: healthQuestionReply });
+  if (latestUserMessage) {
+    if (isEmergency(latestUserMessage.content)) {
+      return Response.json({ reply: emergencyReply });
+    }
+    if (isMedicalQuestion(latestUserMessage.content)) {
+      return Response.json({ reply: healthQuestionReply });
+    }
   }
 
   try {
+    const systemPrompt = buildSystemPrompt(await getHmoPlans());
     const upstream = await fetch(GROQ_URL, {
       method: "POST",
       headers: {

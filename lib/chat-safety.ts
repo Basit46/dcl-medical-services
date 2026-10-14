@@ -8,3 +8,12 @@ const medicalQuestionPattern =
 export function isMedicalQuestion(text: string) {
   return medicalQuestionPattern.test(text);
 }
+
+export const emergencyReply = `I am only able to answer questions about the clinic, and I cannot assess or help with an emergency. Please stop here and contact the hospital directly, or go to the nearest emergency department. ${callBothBranches}.`;
+
+const emergencyPattern =
+  /\b(?:emergenc(?:y|ies)|ambulance|paramedic|collapsed|unconscious|unresponsive|not breathing|isn'?t breathing|aren'?t breathing|cannot breathe|can'?t breathe|choking|choked|seizure|convulsion|overdos(?:e|ed|ing)|poison(?:ed|ing)?|anaphyla(?:xis|sis)|electrocution|heart attack|stroke|haemorrhag\w*|hemorrhag\w*|bleeding(?: heavily| badly| severely| uncontrollably)?|won'?t stop bleeding|critical(?:ly)?|severe(?:ly)? burn\w*|burn(?:s|ed|ing|t)? (?:badly|severely)|died|dying)\b/i;
+
+export function isEmergency(text: string) {
+  return emergencyPattern.test(text);
+}

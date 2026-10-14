@@ -26,9 +26,7 @@ function HoursCard({ location }: { location: HoursLocation }) {
             className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-b border-primary-50 pb-2 last:border-0 last:pb-0"
           >
             <dt className="text-sm text-primary-700">{hours.days}</dt>
-            <dd className="m-0 text-sm font-semibold text-ink">
-              {hours.time}
-            </dd>
+            <dd className="m-0 text-sm font-semibold text-ink">{hours.time}</dd>
           </div>
         ))}
       </dl>
@@ -47,7 +45,7 @@ export function Services() {
       <h2 className="m-0 mb-2 font-display text-4xl font-normal">
         Hospital services
       </h2>
-      <p className="m-0 mb-7 max-w-[48ch] text-[15px] leading-[1.7] text-moss">
+      <p className="m-0 mb-7 max-w-[50ch] text-[15px] leading-[1.7] text-moss">
         Explore the care available at our hospitals in Ketu and Iju-Ishaga,
         Lagos.
       </p>
@@ -65,12 +63,9 @@ export function Services() {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-linear-to-t from-primary-900/92 via-primary-900/55 to-primary-900/15" />
+            <div className="absolute inset-0 bg-linear-to-t from-primary-900/69 via-primary-900/41 to-primary-900/11" />
             <div className="relative">
-              <span className="tnum block text-[11px] tracking-[0.16em] text-primary-100">
-                {service.num}
-              </span>
-              <h3 className="m-0 font-body text-[21px] font-bold text-white">
+              <h3 className="m-0 font-body text-[21px] leading-tight font-bold text-white">
                 {service.name}
               </h3>
               <p className="m-0 text-[13.5px] leading-[1.6] text-primary-50/90">

@@ -52,10 +52,6 @@ export async function Articles() {
       <div className="mx-auto max-w-[1250px] px-5 py-14 sm:py-16">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5 sm:mb-10">
           <div>
-            <span className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary-100 bg-primary-50 px-3 py-1.5 text-[10px] font-bold tracking-[0.18em] text-primary-700 uppercase">
-              <Sparkles size={13} />
-              From the clinic
-            </span>
             <h2 className="m-0 font-display text-4xl font-normal tracking-[-0.02em] text-primary-900 sm:text-5xl">
               Articles &amp; updates
             </h2>

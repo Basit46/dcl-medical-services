@@ -11,7 +11,12 @@ import {
   type ReactNode,
 } from "react";
 import { BookingDialog } from "@/components/site/booking-dialog";
-import { healthQuestionReply, isMedicalQuestion } from "@/lib/chat-safety";
+import {
+  emergencyReply,
+  healthQuestionReply,
+  isEmergency,
+  isMedicalQuestion,
+} from "@/lib/chat-safety";
 import {
   appointmentClinics,
   branches,
@@ -36,29 +41,24 @@ type ChatState = {
   messages: Message[];
 };
 
-const answers: Record<AnswerKey, { label: string; q: string; a: string }> = {
+const answers: Record<AnswerKey, { q: string; a: string }> = {
   hmo: {
-    label: "Do you accept my HMO plan?",
     q: "Do you accept my HMO plan?",
     a: `Yes — we accept over 70 HMO plans at both branches, including AXA Mansard, Leadway Assurance, Clearline, Clearline International, Hygeia HMO, United Healthcare International, Healthcare Security Limited and Princeton Health.\n\nTell me the name of your plan and I will pass it to the front desk, or call your branch with your card and we will confirm on the spot — ${callBothBranches}.`,
   },
   services: {
-    label: "What services do you offer?",
     q: "What services do you offer?",
     a: `Our services include ${services.map((service) => service.name).join(", ")}. ${clinic.careDescription}\n\nIf you tell me what you need, I can point you to the right unit.`,
   },
   where: {
-    label: "Where are you located?",
     q: "Where are you located?",
     a: `We have two branches in Lagos:\n\n${branches
-      .map(
-        (b) =>
-          `${b.name} — ${b.address}. Post Code: ${b.postcode}.`,
-      )
-      .join("\n")}\n\nBoth are marked on the map on this page, and we also see patients from Alapere, Ogudu and nearby parts of Lagos.\n\nKetu: ${branches[0].tel.label}. Iju: ${branches[1].tel.label}.`,
+      .map((b) => `${b.name} — ${b.address}. Post Code: ${b.postcode}.`)
+      .join(
+        "\n",
+      )}\n\nBoth are marked on the map on this page, and we also see patients from Alapere, Ogudu and nearby parts of Lagos.\n\nKetu: ${branches[0].tel.label}. Iju: ${branches[1].tel.label}.`,
   },
   hours: {
-    label: "What are your opening hours?",
     q: "What are your opening hours?",
     a: clinic.openingHours,
   },
@@ -72,9 +72,6 @@ const labHoursAnswer = `Laboratory opening hours: ${labOpeningHours
   )
   .join(". ")}.`;
 
-const quickReplyClass =
-  "min-h-11 border border-pine/70 px-3.5 py-3 text-left text-sm font-bold text-pine hover:bg-pine/10";
-
 const initialState: ChatState = {
   open: false,
   input: "",
@@ -85,7 +82,7 @@ const initialState: ChatState = {
     {
       id: 0,
       from: "bot",
-      text: `Hello, and welcome to ${clinic.name} (${clinic.familiarName}). I can help with HMO cover, our services, directions and appointments. What would you like to know?`,
+      text: `Hello, and welcome to ${clinic.name} (${clinic.familiarName}). I answer questions about HMO cover, our services, directions, opening hours and appointments using the information on this website. I am not a doctor and I cannot give medical advice, assess symptoms or help in an emergency — please call the clinic for anything about your health. What would you like to know?`,
     },
   ],
 };
@@ -123,6 +120,7 @@ function isBookingRequest(text: string) {
 
 function offlineReply(text: string): string {
   const t = text.toLowerCase();
+  if (isEmergency(text)) return emergencyReply;
   if (isMedicalQuestion(text)) return healthQuestionReply;
   if (/lab|laboratory/.test(t) && /hour|open|close|time|schedule/.test(t)) {
     return labHoursAnswer;
@@ -157,7 +155,7 @@ function offlineReply(text: string): string {
       t,
     )
   ) {
-    return `I am not able to give medical advice over chat. The safest step is to see one of our doctors — I can book an appointment for you now, or you can call the clinic directly — ${callBothBranches}.`;
+    return `I am not able to give medical advice over chat. The safest step is to see one of our doctors — I can send an appointment request to a specialist for you now, or you can call the clinic directly — ${callBothBranches}.`;
   }
   return `I may not have that one to hand. You can call the clinic — ${callBothBranches} — or email ${clinic.email}, and the team will answer properly. I can also book you an appointment if that would help.`;
 }
@@ -211,19 +209,21 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const atWelcome = !state.messages.some((m) => m.from === "user");
-  const quickReplies = atWelcome
-    ? (["hmo", "services", "where", "hours"] as AnswerKey[]).map((key) => ({
-        key,
-        label: answers[key].label,
-        onClick: () => setState((s) => askIn(s, key)),
-      }))
-    : [];
-
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const text = state.input.trim();
     if (!text || state.pending) return;
+
+    if (isEmergency(text) || isMedicalQuestion(text)) {
+      const reply = isEmergency(text) ? emergencyReply : healthQuestionReply;
+      setState((s) =>
+        push({ ...s, input: "" }, [
+          { from: "user", text },
+          { from: "bot", text: reply },
+        ]),
+      );
+      return;
+    }
 
     if (isBookingRequest(text)) {
       setState((s) =>
@@ -231,18 +231,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           { from: "user", text },
           {
             from: "bot",
-            text: "Sure — I’m opening the appointment form for you now.",
+            text: "Sure — I'm opening the appointment request form for you now.",
           },
-        ]),
-      );
-      return;
-    }
-
-    if (isMedicalQuestion(text)) {
-      setState((s) =>
-        push({ ...s, input: "" }, [
-          { from: "user", text },
-          { from: "bot", text: healthQuestionReply },
         ]),
       );
       return;
@@ -278,11 +268,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           <div className="flex h-[min(560px,calc(100vh-120px))] w-[min(380px,calc(100vw-32px))] animate-rise flex-col overflow-hidden border border-ink/30 bg-surface shadow-panel">
             <div className="flex flex-none items-center justify-between gap-3 bg-forest px-4 py-3.5 text-surface">
               <div className="flex flex-col">
-                <span className="text-lg font-bold">
-                  {clinic.familiarName} Assistant
-                </span>
+                <span className="text-lg font-bold">DCL AI Assistant</span>
                 <span className="text-[11px] text-fern">
-                  Typically replies instantly
+                  Answers from our website information
                 </span>
               </div>
               <button
@@ -326,25 +314,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             </div>
 
             <div className="flex flex-none flex-col gap-2.5 border-t border-ink/15 px-3 pt-3 pb-3.5">
-              {atWelcome && (
-                <div className="flex flex-wrap gap-2">
-                  {quickReplies.map((q) => (
-                    <button
-                      key={q.key}
-                      type="button"
-                      onClick={q.onClick}
-                      className={quickReplyClass}
-                    >
-                      {q.label}
-                    </button>
-                  ))}
-                  <BookingDialog>
-                    <button type="button" className={quickReplyClass}>
-                      Book an appointment
-                    </button>
-                  </BookingDialog>
-                </div>
-              )}
               <form onSubmit={onSubmit} className="flex items-center gap-2">
                 <input
                   value={state.input}
@@ -372,7 +341,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             className="flex min-h-13 items-center gap-2.5 border border-pine bg-forest px-5 py-3.5 text-base font-bold whitespace-nowrap text-surface shadow-launcher hover:bg-ink"
           >
             <span className="size-2 rounded-full bg-gold" />
-            Chat with us
+            Ask Question
           </button>
         )}
       </div>

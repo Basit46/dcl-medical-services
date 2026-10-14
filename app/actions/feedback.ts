@@ -1,86 +1,119 @@
 "use server";
 
-import { feedbackSchema } from "@/lib/feedback-form";
+import {
+  branchOptions,
+  contactLabels,
+  discussedLabels,
+  feedbackSchema,
+} from "@/lib/feedback-form";
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const FEEDBACK_EMAIL = "dejiclinic2005@yahoo.com";
 
-function formatBranchName(branchId: string): string {
-  const branchNames: Record<string, string> = {
-    ketu: "DOYIN OMOLOLU KETU",
-    iju: "AGBADO RD IJU-ISHAGA",
-  };
-  return branchNames[branchId] || branchId.toUpperCase();
-}
+export type FeedbackActionResult = {
+  status: "idle" | "success" | "error";
+  message: string;
+  fields?: Partial<Record<string, string>>;
+};
+
+const text = (formData: FormData, key: string) =>
+  (formData.get(key) ?? "").toString().trim();
 
 function formatGender(gender: string): string {
   return gender.charAt(0) + gender.slice(1).toLowerCase();
 }
 
-function formatContactMethod(method: string): string {
-  const methods: Record<string, string> = {
-    WHATSAPP: "WHATSAPP NO",
-    SMS: "SMS",
-    EMAIL: "E MAIL",
-  };
-  return methods[method] || method;
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
-function formatDiscussedWithStaff(value: string): string {
-  const options: Record<string, string> = {
-    YES: "YES",
-    NO: "NO",
-    NOT_INTERESTED: "I AM NOT INTERESTED",
-  };
-  return options[value] || value;
+function row(label: string, value: string) {
+  return `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${label}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(
+    value,
+  )}</td></tr>`;
 }
 
 export async function submitFeedback(
   _prev: { status: "idle" | "success" | "error"; message: string },
   formData: FormData,
-): Promise<{ status: "idle" | "success" | "error"; message: string }> {
+): Promise<FeedbackActionResult> {
+  if (text(formData, "website")) {
+    return { status: "success", message: "Thank you!" };
+  }
+
   const rawData = {
-    email: formData.get("email") as string,
-    branch: formData.get("branch") as string,
-    phone: formData.get("phone") as string,
-    visitDate: formData.get("visitDate") as string,
-    visitTime: formData.get("visitTime") as string,
-    surname: formData.get("surname") as string,
-    firstName: formData.get("firstName") as string,
-    hmo: (formData.get("hmo") as string) || "",
-    gender: formData.get("gender") as string,
-    suggestionComplaint: formData.get("suggestionComplaint") as string,
-    discussedWithStaff: formData.get("discussedWithStaff") as string,
-    contactMethod: formData.get("contactMethod") as string,
-    improvementSuggestion:
-      (formData.get("improvementSuggestion") as string) || "",
+    email: text(formData, "email"),
+    branch: text(formData, "branch"),
+    phone: text(formData, "phone"),
+    visitDate: text(formData, "visitDate"),
+    visitTime: text(formData, "visitTime"),
+    surname: text(formData, "surname"),
+    firstName: text(formData, "firstName"),
+    hmo: text(formData, "hmo"),
+    gender: text(formData, "gender"),
+    suggestionComplaint: text(formData, "suggestionComplaint"),
+    discussedWithStaff: text(formData, "discussedWithStaff"),
+    contactMethod: text(formData, "contactMethod"),
+    improvementSuggestion: text(formData, "improvementSuggestion"),
   };
 
   const parsed = feedbackSchema.safeParse(rawData);
   if (!parsed.success) {
-    return { status: "error", message: "Please check the highlighted fields." };
+    const fields: Partial<Record<string, string>> = {};
+    for (const issue of parsed.error.issues) {
+      const field = issue.path[0];
+      if (typeof field === "string" && !fields[field]) {
+        fields[field] = issue.message;
+      }
+    }
+    return {
+      status: "error",
+      message: "Please check the highlighted fields.",
+      fields,
+    };
   }
 
   const data = parsed.data;
+  const branchName =
+    branchOptions.find((option) => option.value === data.branch)?.label ??
+    data.branch.toUpperCase();
 
   const htmlContent = `
     <h2>Suggestions/Service Complaints Form</h2>
     <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Email*</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.email}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Branch Visited*</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formatBranchName(data.branch)}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>PHONE NO/WHATSAPP NO*</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.phone}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Date of Clinic visit*</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.visitDate}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Time of visit*</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.visitTime}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>SURNAME*</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.surname}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>FIRST NAME*</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.firstName}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>YOUR HMO [IF NOT CASH PAYING CUSTOMER]</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.hmo || "N/A"}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>GENDER</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formatGender(data.gender)}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>WHAT SUGGESTION OR COMPLAINTS DO YOU HAVE ABOUT HOW YOU WERE SERVED?*</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.suggestionComplaint}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>WERE YOU ABLE TO DISCUSS IT WITH THE HEAD NURSE OR THE DR ON DUTY</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formatDiscussedWithStaff(data.discussedWithStaff)}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>HOW BEST CAN YOU BE REACHED*</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formatContactMethod(data.contactMethod)}</td></tr>
-      <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>WHAT SUGGESTIONS DO YOU HAVE FOR SERVICE IMPROVEMENT AT DCL MEDICAL SERVICES?</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.improvementSuggestion || "N/A"}</td></tr>
+      ${row("Email*", data.email)}
+      ${row("Branch Visited*", branchName)}
+      ${row("PHONE NO/WHATSAPP NO*", data.phone)}
+      ${row("Date of Clinic visit*", data.visitDate)}
+      ${row("Time of visit*", data.visitTime)}
+      ${row("SURNAME*", data.surname)}
+      ${row("FIRST NAME*", data.firstName)}
+      ${row("YOUR HMO [IF NOT CASH PAYING CUSTOMER]", data.hmo || "N/A")}
+      ${row("GENDER", formatGender(data.gender))}
+      ${row(
+        "WHAT SUGGESTION OR COMPLAINTS DO YOU HAVE ABOUT HOW YOU WERE SERVED?*",
+        data.suggestionComplaint,
+      )}
+      ${row(
+        "WERE YOU ABLE TO DISCUSS IT WITH THE HEAD NURSE OR THE DR ON DUTY*",
+        discussedLabels[data.discussedWithStaff],
+      )}
+      ${row(
+        "HOW BEST CAN YOU BE REACHED*",
+        contactLabels[data.contactMethod],
+      )}
+      ${row(
+        "WHAT SUGGESTIONS DO YOU HAVE FOR SERVICE IMPROVEMENT AT DCL MEDICAL SERVICES?",
+        data.improvementSuggestion || "N/A",
+      )}
     </table>
-    <p style="margin-top: 16px; font-size: 12px; color: #666;">A copy of your responses will be emailed to the address that you provided.</p>
+    <p style="margin-top: 16px; font-size: 12px; color: #666;">Replies will go to ${escapeHtml(
+      data.email,
+    )}.</p>
   `;
 
   if (!BREVO_API_KEY) {
@@ -104,7 +137,7 @@ export async function submitFeedback(
           name: "DCL Medical Services Feedback",
         },
         to: [{ email: FEEDBACK_EMAIL, name: "DCL Medical Services" }],
-        subject: `New Feedback from ${data.firstName} ${data.surname} - ${formatBranchName(data.branch)}`,
+        subject: `New Feedback from ${data.firstName} ${data.surname} - ${branchName}`,
         htmlContent,
         replyTo: {
           email: data.email,
@@ -114,8 +147,7 @@ export async function submitFeedback(
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error("Brevo API error:", error);
+      console.error("Brevo API error:", await response.text());
       throw new Error("Failed to send email");
     }
 

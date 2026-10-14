@@ -29,10 +29,10 @@ export function SiteFooter() {
               </a>
             ))}
             <a
-              href={clinic.directorLine.href}
-              className="tnum text-[14.5px] text-cream"
+              href={clinic.whatsappLine.href}
+              className="text-[14.5px] text-cream"
             >
-              {clinic.directorLine.label}
+              WhatsApp only— {clinic.whatsappLine.label}
             </a>
             <a
               href={`mailto:${clinic.email}`}
@@ -76,11 +76,10 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="flex flex-wrap justify-between gap-3 pt-6 text-xs text-fern">
+        <div className="flex flex-wrap  gap-3 pt-6 text-xs text-fern">
           <span>
-            {clinic.name} · {clinic.familiarName}
+            {clinic.name} ({clinic.familiarName}) · {new Date().getFullYear()}
           </span>
-          <span>Over 70 HMO plans accepted</span>
         </div>
       </div>
     </footer>
