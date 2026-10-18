@@ -23,24 +23,24 @@ export function Hero() {
             {clinic.careDescription}
           </p>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-1 justify-items-start gap-3 sm:flex sm:flex-wrap sm:justify-items-stretch">
             <BookingDialog>
               <button
                 type="button"
-                className="inline-flex min-h-[50px] items-center border border-gold bg-gold px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-white hover:bg-gold-deep"
+                className="inline-flex min-h-[50px] w-[80%] items-center justify-start border border-gold bg-gold px-[26px] py-[15px] text-left text-[17px] font-bold text-white hover:bg-gold-deep sm:w-auto sm:whitespace-nowrap"
               >
                 Request an Appointment
               </button>
             </BookingDialog>
-            <ChatTrigger className="min-h-[50px] border border-ink/30 px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-ink hover:bg-ink/5">
+            <ChatTrigger className="inline-flex min-h-[50px] w-[80%] items-center justify-start border border-ink/30 px-[26px] py-[15px] text-left text-[17px] font-bold text-ink hover:bg-ink/5 sm:w-auto sm:whitespace-nowrap">
               Ask Question
             </ChatTrigger>
             <FeedbackDialog>
               <button
                 type="button"
-                className="inline-flex min-h-[50px] items-center gap-2 border border-ink/30 px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-ink hover:bg-ink/5"
+                className="inline-flex min-h-[50px] w-[80%] items-center justify-start gap-2 border border-ink/30 px-[26px] py-[15px] text-left text-[17px] font-bold text-ink hover:bg-ink/5 sm:w-auto sm:whitespace-nowrap"
               >
-                <LucideSendHorizonal className="size-[18px]" />
+                <LucideSendHorizonal className="size-[18px] shrink-0" />
                 Send Feedback
               </button>
             </FeedbackDialog>

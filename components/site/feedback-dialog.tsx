@@ -118,7 +118,7 @@ function ChoiceFieldset({
             onBlur={field.onBlur}
             aria-invalid={Boolean(error)}
             aria-describedby={error ? errorId : undefined}
-            className="grid grid-cols-3 gap-2"
+            className="grid grid-cols-[repeat(auto-fit,minmax(min(150px,100%),1fr))] gap-2"
           >
             {options.map((option) => (
               <Label
@@ -131,7 +131,7 @@ function ChoiceFieldset({
                 )}
               >
                 <RadioGroupItem value={option.value} />
-                <span className="text-base font-medium text-ink">
+                <span className="text-base font-medium break-words text-ink">
                   {option.label}
                 </span>
               </Label>
@@ -274,7 +274,7 @@ export function FeedbackDialog({ children }: { children?: ReactNode }) {
           <form
             onSubmit={handleSubmit(onSubmit)}
             noValidate
-            className="flex flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6"
+            className="flex min-w-0 flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6"
           >
             {serverError ? (
               <p
@@ -285,7 +285,7 @@ export function FeedbackDialog({ children }: { children?: ReactNode }) {
               </p>
             ) : null}
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4">
               <Field
                 id="email"
                 label="Email"
@@ -362,7 +362,7 @@ export function FeedbackDialog({ children }: { children?: ReactNode }) {
               />
             </Field>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4">
               <Field
                 id="visitDate"
                 label="Date of clinic visit"
@@ -401,7 +401,7 @@ export function FeedbackDialog({ children }: { children?: ReactNode }) {
               </Field>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4">
               <Field
                 id="surname"
                 label="Surname"

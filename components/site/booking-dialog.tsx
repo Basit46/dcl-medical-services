@@ -219,7 +219,7 @@ export function BookingDialog({
           <form
             onSubmit={onSubmit}
             noValidate
-            className="flex flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6"
+            className="flex min-w-0 flex-col gap-5 overflow-y-auto px-5 py-5 sm:px-6"
           >
             <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
               <legend className="mb-2 text-sm font-semibold text-ink">
@@ -229,7 +229,7 @@ export function BookingDialog({
                 aria-label="Which branch?"
                 value={form.branchId}
                 onValueChange={(value) => set("branchId", value)}
-                className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2"
+                className="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-2"
               >
                 {branches.map((option) => (
                   <Label
@@ -242,7 +242,7 @@ export function BookingDialog({
                     )}
                   >
                     <RadioGroupItem value={option.id} className="mt-0.5" />
-                    <span className="flex flex-col gap-1">
+                    <span className="flex min-w-0 flex-col gap-1 break-words">
                       <span className="text-base font-bold text-ink">
                         {option.name}
                       </span>
@@ -257,7 +257,7 @@ export function BookingDialog({
               </RadioGroup>
             </fieldset>
 
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-4">
               <Label className="flex flex-col items-start gap-1.5">
                 <span className="text-sm font-medium text-ink">
                   Full name *
@@ -341,7 +341,7 @@ export function BookingDialog({
               </Label>
             ) : null}
 
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-4">
               <Label className="flex flex-col items-start gap-1.5">
                 <span className="text-sm font-medium text-ink">
                   Preferred date *
@@ -380,7 +380,7 @@ export function BookingDialog({
                 aria-label="Are you paying through an HMO?"
                 value={form.usesHmo ? "yes" : "no"}
                 onValueChange={(value) => set("usesHmo", value === "yes")}
-                className="grid grid-cols-2 gap-2"
+                className="grid grid-cols-[repeat(auto-fit,minmax(min(160px,100%),1fr))] gap-2"
               >
                 {[
                   { value: "no", label: "No, I will pay cash" },
@@ -396,7 +396,7 @@ export function BookingDialog({
                     )}
                   >
                     <RadioGroupItem value={option.value} />
-                    <span className="text-base font-medium text-ink">
+                    <span className="text-base font-medium break-words text-ink">
                       {option.label}
                     </span>
                   </Label>
