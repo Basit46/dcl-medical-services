@@ -26,9 +26,9 @@ const buildFacts = (hmoPlans: string[]) => [
   `Scan services opening hours: ${scanOpeningHours.map((location) => `${location.branch}: ${location.hours.map((item) => `${item.days} ${item.time}`).join(", ")}`).join("; ")}.`,
   `Appointment-based clinics: ${appointmentClinics.join(", ")}.`,
   `Clients: ${clinic.clientTypes.join(", ")}. ${clinic.workforceDescription}`,
-  `HMOs: ${clinic.hmoCount} plans accepted at both branches, including ${hmoPlans.join(", ")}.`,
+  `HMOs: ${clinic.hmoCount} accepted at both branches, including ${hmoPlans.join(", ")}.`,
   `Medical Director: ${director.name}. ${director.bio}`,
-  `Booking: use the "Request an Appointment" button on this page (it opens a form for requesting an appointment with a specialist, then hands the request to WhatsApp for the chosen branch), or call the branch directly. Specialist clinics available: Gynaecology, Orthopaedics, Physiotherapy, Urology, ENT, or ask for another service under "Others (Specify)". Walk-ins are welcome at both branches.`,
+  `Booking: use the "Request an Appointment" button on this page (it opens a form for requesting an appointment with a specialist, then hands the request to WhatsApp for the chosen branch), or call the branch directly. Specialist clinics available: Gynaecology, Orthopaedics, Physiotherapy, Urology, ENT, Wellness Service, or ask for another service under "Others (Specify)". Walk-ins are welcome at both branches.`,
 ].join("\n");
 
 const buildSystemPrompt = (hmoPlans: string[]) => `You are the website assistant for ${clinic.name}. Answer visitors' questions using only the facts below.
@@ -42,7 +42,7 @@ Rules:
 - Do not answer questions about health, symptoms, conditions, causes, diagnoses, tests or results, treatment, medication, pregnancy, or what care a person needs. Do not offer reassurance or general medical information.
 - For any medical or health question, reply only with this message: "${healthQuestionReply}".
 - You are not a medical service. If a message describes an emergency, a collapse, breathing difficulty, severe bleeding, unconsciousness, a seizure, an overdose or similar, do not answer it in any way. Reply only with this message: "${emergencyReply}".
-- Answer only administrative questions about the clinic, such as its services, hours, locations, HMO plans, schedules, and appointments.`;
+- Answer only administrative questions about the clinic, such as its services, hours, locations, HMOs, schedules, and appointments.`;
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "openai/gpt-oss-20b";

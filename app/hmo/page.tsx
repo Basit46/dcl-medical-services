@@ -6,8 +6,8 @@ import { SiteHeader } from "@/components/site/header";
 import { clinic } from "@/lib/clinic";
 
 export const metadata: Metadata = {
-  title: "HMO plans we accept",
-  description: `Search the full list of HMO plans accepted at ${clinic.name}, our 24-hour hospital in Ketu and Iju-Ishaga, Lagos. ${clinic.hmoCount} plans covered.`,
+  title: "HMOs we accept",
+  description: `Search the full list of HMOs accepted at ${clinic.name}, our 24-hour hospital in Ketu and Iju-Ishaga, Lagos. ${clinic.hmoCount} HMOs covered.`,
   alternates: { canonical: "/hmo" },
 };
 

@@ -90,7 +90,7 @@ export default async function OpenGraphImage() {
             color: "#EFF6FF",
           }}
         >
-          {clinic.hmoCount} HMO plans accepted
+          {clinic.hmoCount} HMOs accepted
         </div>
       </div>
     </div>,

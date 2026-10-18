@@ -30,14 +30,14 @@ export function Hmo() {
             {clinic.hmoCount}
           </span>
           <h2 className="m-0 font-display text-[34px] font-normal text-surface">
-            HMO plans accepted
+            HMOs accepted
           </h2>
         </div>
 
         <p className="m-0 mb-7 max-w-[54ch] text-[15px] leading-[1.7] text-cream">
-          If your employer or family plan is with a registered HMO, there is a
+          If your employer or family cover is with a registered HMO, there is a
           strong chance we are on the list. Our hospitals in Ketu and Iju-Ishaga
-          are HMO-accepted hospitals in Lagos, with 70+ plans covered.
+          are HMO-accepted hospitals in Lagos, with 70+ HMOs covered.
         </p>
 
         <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -46,8 +46,8 @@ export function Hmo() {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search plans, e.g. Leadway"
-              aria-label="Search accepted HMO plans"
+              placeholder="Search HMOs e.g.leadway"
+              aria-label="Search accepted HMOs"
               className="h-12 border-white/40 bg-transparent text-surface shadow-none placeholder:text-white/45 focus-visible:border-white/70 focus-visible:ring-white/25"
             />
           </div>
@@ -76,8 +76,8 @@ export function Hmo() {
             </div>
           ) : (
             <div className="border border-white/20 px-[18px] py-8 text-sm text-cream">
-              No plans match “{trimmed}”. Call either branch and we will confirm
-              your plan before you visit.
+              No HMOs match “{trimmed}”. Call either branch and we will confirm
+              your HMO before you visit.
             </div>
           )
         ) : null}

@@ -34,7 +34,7 @@ export const articles: Article[] = [
       { type: "heading", text: "Serving different clients" },
       {
         type: "paragraph",
-        text: "DCL Medical Services serves cash-paying clients, HMO members, and retainer clients. More than 70 HMO plans are accepted at the clinic’s units.",
+        text: "DCL Medical Services serves cash-paying clients, HMO members, and retainer clients. More than 70 HMOs are accepted at the clinic’s units.",
       },
       {
         type: "paragraph",

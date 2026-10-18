@@ -1,5 +1,7 @@
+import { LucideSendHorizonal } from "lucide-react";
 import { BookingDialog } from "@/components/site/booking-dialog";
 import { ChatTrigger } from "@/components/site/chat";
+import { FeedbackDialog } from "@/components/site/feedback-dialog";
 import { branches, clinic } from "@/lib/clinic";
 
 const highlights = clinic.clientTypes;
@@ -33,6 +35,15 @@ export function Hero() {
             <ChatTrigger className="min-h-[50px] border border-ink/30 px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-ink hover:bg-ink/5">
               Ask Question
             </ChatTrigger>
+            <FeedbackDialog>
+              <button
+                type="button"
+                className="inline-flex min-h-[50px] items-center gap-2 border border-ink/30 px-[26px] py-[15px] text-[17px] font-bold whitespace-nowrap text-ink hover:bg-ink/5"
+              >
+                <LucideSendHorizonal className="size-[18px]" />
+                Send Feedback
+              </button>
+            </FeedbackDialog>
           </div>
         </div>
 
@@ -42,7 +53,7 @@ export function Hero() {
               {clinic.hmoCount}
             </span>
             <span className="text-sm leading-[1.5] text-slate">
-              HMO plans accepted at both branches
+              HMOs accepted at both branches
             </span>
           </div>
 

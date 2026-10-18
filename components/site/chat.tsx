@@ -43,8 +43,8 @@ type ChatState = {
 
 const answers: Record<AnswerKey, { q: string; a: string }> = {
   hmo: {
-    q: "Do you accept my HMO plan?",
-    a: `Yes — we accept over 70 HMO plans at both branches, including AXA Mansard, Leadway Assurance, Clearline, Clearline International, Hygeia HMO, United Healthcare International, Healthcare Security Limited and Princeton Health.\n\nTell me the name of your plan and I will pass it to the front desk, or call your branch with your card and we will confirm on the spot — ${callBothBranches}.`,
+    q: "Do you accept my HMO?",
+    a: `Yes — we accept over 70 HMOs at both branches, including AXA Mansard, Leadway Assurance, Clearline, Clearline International, Hygeia HMO, United Healthcare International, Healthcare Security Limited and Princeton Health.\n\nTell me the name of your HMO and I will pass it to the front desk, or call your branch with your card and we will confirm on the spot — ${callBothBranches}.`,
   },
   services: {
     q: "What services do you offer?",

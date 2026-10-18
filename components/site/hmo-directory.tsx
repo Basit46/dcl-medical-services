@@ -29,12 +29,12 @@ export function HmoDirectory() {
       </Link>
 
       <h1 className="m-0 mb-3 font-display text-[clamp(38px,7vw,64px)] leading-[1.02] font-normal tracking-[-0.03em] text-primary-900">
-        HMO plans we accept
+        HMOs we accept
       </h1>
       <p className="m-0 mb-8 max-w-[62ch] text-[16px] leading-[1.75] text-primary-800">
-        Search the full list to check whether your plan is covered at our Ketu
-        and Iju-Ishaga branches. If you cannot see it here, call{" "}
-        {callBothBranches} and the front desk will confirm.
+        Current list of HMO accepted. Please call 07067131613 (Ketu) or
+        07067131611(Iju-Ishaga) or 0803 307 2123 (WhatsApp ONLY) if your HMO is
+        not on this list for confirmation
       </p>
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -43,8 +43,8 @@ export function HmoDirectory() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search plans, e.g. Leadway"
-            aria-label="Search accepted HMO plans"
+            placeholder="Search HMOs e.g.leadway"
+            aria-label="Search accepted HMOs"
             className="h-12"
           />
         </div>
@@ -75,7 +75,7 @@ export function HmoDirectory() {
         </>
       ) : (
         <div className="border border-ink/15 px-[18px] py-10 text-[15px] leading-[1.7] text-ink">
-          <p className="m-0 mb-3">No plan matches “{trimmed}”.</p>
+          <p className="m-0 mb-3">No HMO matches “{trimmed}”.</p>
           <p className="m-0 text-slate">
             It may still be covered under a different name. Call{" "}
             {callBothBranches} with your membership card and we will confirm

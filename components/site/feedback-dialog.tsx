@@ -155,7 +155,7 @@ function ChoiceFieldset({
   );
 }
 
-export function FeedbackDialog() {
+export function FeedbackDialog({ children }: { children?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submittedName, setSubmittedName] = useState("");
@@ -228,12 +228,16 @@ export function FeedbackDialog() {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="lg" className="h-12 text-base gap-2">
-          <LucideSendHorizonal className="size-4" />
-          Send Feedback
-        </Button>
-      </DialogTrigger>
+      {children ? (
+        <DialogTrigger asChild>{children}</DialogTrigger>
+      ) : (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="lg" className="h-12 text-base gap-2">
+            <LucideSendHorizonal className="size-4" />
+            Send Feedback
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="gap-0 p-0 sm:max-w-[640px] max-h-[90dvh] overflow-hidden">
         <DialogHeader className="flex-none border-b border-border bg-primary-50 px-5 py-5 pr-14 sm:px-6">
           <DialogTitle className="font-display text-[26px] leading-tight font-normal text-primary-900">

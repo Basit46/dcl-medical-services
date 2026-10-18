@@ -6,9 +6,11 @@ import {
   discussedLabels,
   feedbackSchema,
 } from "@/lib/feedback-form";
+import { clinic } from "@/lib/clinic";
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const FEEDBACK_EMAIL = "dejiclinic2005@yahoo.com";
+const FEEDBACK_FROM_EMAIL = "hassanbasitope@12359773.brevosend.com";
+const FEEDBACK_FROM_NAME = "DCL Medical Services Feedback";
 
 export type FeedbackActionResult = {
   status: "idle" | "success" | "error";
@@ -102,10 +104,7 @@ export async function submitFeedback(
         "WERE YOU ABLE TO DISCUSS IT WITH THE HEAD NURSE OR THE DR ON DUTY*",
         discussedLabels[data.discussedWithStaff],
       )}
-      ${row(
-        "HOW BEST CAN YOU BE REACHED*",
-        contactLabels[data.contactMethod],
-      )}
+      ${row("HOW BEST CAN YOU BE REACHED*", contactLabels[data.contactMethod])}
       ${row(
         "WHAT SUGGESTIONS DO YOU HAVE FOR SERVICE IMPROVEMENT AT DCL MEDICAL SERVICES?",
         data.improvementSuggestion || "N/A",
@@ -133,10 +132,10 @@ export async function submitFeedback(
       },
       body: JSON.stringify({
         sender: {
-          email: FEEDBACK_EMAIL,
-          name: "DCL Medical Services Feedback",
+          email: FEEDBACK_FROM_EMAIL,
+          name: FEEDBACK_FROM_NAME,
         },
-        to: [{ email: FEEDBACK_EMAIL, name: "DCL Medical Services" }],
+        to: [{ email: clinic.email, name: clinic.name }],
         subject: `New Feedback from ${data.firstName} ${data.surname} - ${branchName}`,
         htmlContent,
         replyTo: {
@@ -147,9 +146,21 @@ export async function submitFeedback(
     });
 
     if (!response.ok) {
-      console.error("Brevo API error:", await response.text());
-      throw new Error("Failed to send email");
+      const detail = await response.text();
+      console.error(`Brevo rejected the feedback email (${response.status}).`, {
+        sender: FEEDBACK_FROM_EMAIL,
+        recipient: clinic.email,
+        detail,
+      });
+      throw new Error(`Brevo responded with ${response.status}`);
     }
+
+    const result = await response.json().catch(() => null);
+    console.info("Feedback email accepted by Brevo.", {
+      sender: FEEDBACK_FROM_EMAIL,
+      recipient: clinic.email,
+      messageId: result?.messageId,
+    });
 
     return {
       status: "success",

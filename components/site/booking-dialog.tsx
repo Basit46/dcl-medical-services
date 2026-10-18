@@ -415,7 +415,7 @@ export function BookingDialog({
                     value={form.hmoProvider}
                     onChange={(e) => set("hmoProvider", e.target.value)}
                     list="dcl-hmo-plans"
-                    placeholder="Start typing your HMO plan name"
+                    placeholder="Start typing your HMO name"
                     className="w-full"
                     aria-invalid={Boolean(errors.hmoProvider)}
                     aria-describedby={

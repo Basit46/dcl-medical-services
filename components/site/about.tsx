@@ -2,7 +2,7 @@ import { branches, clinic, services } from "@/lib/clinic";
 
 const stats = [
   { value: String(branches.length), label: "Clinic units" },
-  { value: "70+", label: "HMO plans accepted" },
+  { value: "70+", label: "HMOs accepted" },
   { value: String(services.length), label: "Service areas" },
 ];
 
