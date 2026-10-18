@@ -38,11 +38,7 @@ import {
 } from "@/lib/feedback-form";
 import { cn } from "@/lib/utils";
 
-type ChoiceField =
-  | "gender"
-  | "discussedWithStaff"
-  | "contactMethod"
-  | "branch";
+type ChoiceField = "gender" | "discussedWithStaff" | "contactMethod" | "branch";
 
 function Field({
   id,
@@ -60,10 +56,7 @@ function Field({
   const errorId = `${id}-error`;
   return (
     <div className="flex flex-col items-start gap-1.5">
-      <label
-        htmlFor={id}
-        className="text-sm font-medium text-ink"
-      >
+      <label htmlFor={id} className="text-sm font-medium text-ink">
         {label}
         {required ? (
           <span aria-hidden="true" className="text-red-700">
@@ -244,9 +237,9 @@ export function FeedbackDialog({ children }: { children?: ReactNode }) {
             Send Feedback
           </DialogTitle>
           <DialogDescription className="text-[13px] leading-[1.6] text-primary-800">
-            Share your suggestions or complaints about your visit. Fields
-            marked <span className="font-bold">*</span> are required. Your
-            feedback goes straight to our management team.
+            Share your suggestions or complaints about your visit. Fields marked{" "}
+            <span className="font-bold">*</span> are required. Your feedback
+            goes straight to our management team.
           </DialogDescription>
         </DialogHeader>
 
@@ -259,8 +252,7 @@ export function FeedbackDialog({ children }: { children?: ReactNode }) {
               />
               <span>
                 <strong>Thank you, {submittedName || "friend"}.</strong> Your
-                feedback has been received. If we can help you with anything,
-                call {callBothBranches}.
+                feedback has been received.
               </span>
             </p>
             <Button
