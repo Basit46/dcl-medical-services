@@ -1,16 +1,12 @@
 "use server";
 
+import { escapeHtml, sendClinicEmail } from "@/lib/brevo";
 import {
   branchOptions,
   contactLabels,
   discussedLabels,
   feedbackSchema,
 } from "@/lib/feedback-form";
-import { clinic } from "@/lib/clinic";
-
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const FEEDBACK_FROM_EMAIL = "hassanbasitope@12359773.brevosend.com";
-const FEEDBACK_FROM_NAME = "DCL Medical Services Feedback";
 
 export type FeedbackActionResult = {
   status: "idle" | "success" | "error";
@@ -25,16 +21,10 @@ function formatGender(gender: string): string {
   return gender.charAt(0) + gender.slice(1).toLowerCase();
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 function row(label: string, value: string) {
-  return `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${label}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(
+  return `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${escapeHtml(
+    label,
+  )}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${escapeHtml(
     value,
   )}</td></tr>`;
 }
@@ -115,63 +105,25 @@ export async function submitFeedback(
     )}.</p>
   `;
 
-  if (!BREVO_API_KEY) {
-    return {
-      status: "error",
-      message: "Email service is not configured. Please try again later.",
-    };
-  }
+  const result = await sendClinicEmail({
+    subject: `New Feedback from ${data.firstName} ${data.surname} - ${branchName}`,
+    htmlContent,
+    replyTo: {
+      email: data.email,
+      name: `${data.firstName} ${data.surname}`,
+    },
+  });
 
-  try {
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "api-key": BREVO_API_KEY,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        sender: {
-          email: FEEDBACK_FROM_EMAIL,
-          name: FEEDBACK_FROM_NAME,
-        },
-        to: [{ email: clinic.email, name: clinic.name }],
-        subject: `New Feedback from ${data.firstName} ${data.surname} - ${branchName}`,
-        htmlContent,
-        replyTo: {
-          email: data.email,
-          name: `${data.firstName} ${data.surname}`,
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      const detail = await response.text();
-      console.error(`Brevo rejected the feedback email (${response.status}).`, {
-        sender: FEEDBACK_FROM_EMAIL,
-        recipient: clinic.email,
-        detail,
-      });
-      throw new Error(`Brevo responded with ${response.status}`);
-    }
-
-    const result = await response.json().catch(() => null);
-    console.info("Feedback email accepted by Brevo.", {
-      sender: FEEDBACK_FROM_EMAIL,
-      recipient: clinic.email,
-      messageId: result?.messageId,
-    });
-
-    return {
-      status: "success",
-      message: "Thank you! Your feedback has been sent successfully.",
-    };
-  } catch (error) {
-    console.error("Failed to send feedback email:", error);
+  if (!result.ok) {
     return {
       status: "error",
       message:
         "We could not send your feedback just now. Please try again in a moment.",
     };
   }
+
+  return {
+    status: "success",
+    message: "Thank you! Your feedback has been sent successfully.",
+  };
 }

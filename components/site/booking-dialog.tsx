@@ -27,6 +27,7 @@ import {
   clinic,
   OTHER_SERVICE,
 } from "@/lib/clinic";
+import { submitAppointmentRequest } from "@/app/actions/booking";
 import { useHmoPlans } from "@/components/site/hmo-plans-provider";
 import { cn } from "@/lib/utils";
 
@@ -177,7 +178,7 @@ export function BookingDialog({
     }
   };
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const found = validate(form);
     setErrors(found);
@@ -186,6 +187,12 @@ export function BookingDialog({
     const url = buildWhatsappUrl(form);
     setSentUrl(url);
     window.open(url, "_blank", "noopener,noreferrer");
+
+    try {
+      await submitAppointmentRequest(form);
+    } catch (error) {
+      console.error("Failed to email the appointment request:", error);
+    }
   };
 
   const today = new Date().toISOString().slice(0, 10);
