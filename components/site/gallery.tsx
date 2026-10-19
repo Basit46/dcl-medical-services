@@ -21,12 +21,12 @@ const galleryItems: GalleryItem[] = [
     alt: "Exterior of DCL Medical Services",
     src: "/hosptal2-potrait.jpeg",
   },
-  // {
-  //   title: "Our hospital",
-  //   category: "Preview of HMOs",
-  //   alt: "Interior of DCL Medical Services",
-  //   src: "/dcl-hmo.webp",
-  // },
+  {
+    title: "Our hospital",
+    category: "Preview of HMOs",
+    alt: "Interior of DCL Medical Services",
+    src: "/hmo-banner.jpg",
+  },
 ];
 
 function GalleryCard({ item }: { item: GalleryItem }) {
@@ -37,7 +37,7 @@ function GalleryCard({ item }: { item: GalleryItem }) {
         alt={item.alt}
         fill
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        className="object-top object-contain transition-transform duration-700 group-hover:scale-105"
+        className="object-top object-cover group-last:object-contain transition-transform duration-700 group-hover:scale-105"
         style={{ objectPosition: item.objectPosition ?? "center" }}
       />
       <div className="absolute inset-0 bg-linear-to-t from-primary-900/90 via-primary-900/15 to-transparent" />
@@ -72,7 +72,7 @@ export function Gallery() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:auto-rows-[420px] lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:auto-rows-[420px] lg:grid-cols-3">
           {galleryItems.map((item) => (
             <GalleryCard key={item.src} item={item} />
           ))}
