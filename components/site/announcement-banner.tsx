@@ -56,13 +56,24 @@ export function AnnouncementBanner({
     >
       <DialogContent
         className={cn(
-          "gap-0 p-0",
+          "gap-0 p-0 border-ink border-[2px]",
           announcement?.imageUrl
-            ? "sm:max-w-[720px] min-h-[400px]"
+            ? "sm:max-w-[960px] h-[90vh]"
             : "sm:max-w-[480px]",
         )}
       >
-        {announcement && (
+        {announcement?.imageUrl ? (
+          <div className="relative w-full h-full bg-white">
+            <Image
+              src={announcement.imageUrl}
+              alt={announcement.title}
+              fill
+              sizes="100vw"
+              className="object-contain"
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+        ) : announcement ? (
           <>
             <DialogHeader className="border-b border-primary-100 bg-primary-50 px-6 py-6 pr-14 sm:px-8 sm:py-7">
               <p className="m-0 text-[10px] font-bold tracking-[0.18em] text-primary-600 uppercase">
@@ -73,16 +84,6 @@ export function AnnouncementBanner({
               </DialogTitle>
             </DialogHeader>
             <div className="px-6 py-6 sm:px-8">
-              {announcement.imageUrl && (
-                <Image
-                  src={announcement.imageUrl}
-                  alt={announcement.title}
-                  width={800}
-                  height={400}
-                  className="mx-auto mb-6 max-h-48 w-auto object-cover rounded-lg"
-                  style={{ objectFit: "cover", borderRadius: "0.5rem" }}
-                />
-              )}
               <DialogDescription className="text-[15px] leading-[1.8] text-primary-800">
                 {announcement.message}
               </DialogDescription>
@@ -95,7 +96,7 @@ export function AnnouncementBanner({
               </DialogFooter>
             </div>
           </>
-        )}
+        ) : null}
       </DialogContent>
     </Dialog>
   );
