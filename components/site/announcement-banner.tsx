@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { SiteAnnouncement } from "@/sanity/lib/announcement";
+import { cn } from "@/lib/utils";
 
 export function AnnouncementBanner({
   announcement,
@@ -53,7 +54,14 @@ export function AnnouncementBanner({
         if (!nextOpen && announcement) setDismissedId(announcement.id);
       }}
     >
-      <DialogContent className="gap-0 p-0 sm:max-w-[480px]">
+      <DialogContent
+        className={cn(
+          "gap-0 p-0",
+          announcement?.imageUrl
+            ? "sm:max-w-[720px] min-h-[400px]"
+            : "sm:max-w-[480px]",
+        )}
+      >
         {announcement && (
           <>
             <DialogHeader className="border-b border-primary-100 bg-primary-50 px-6 py-6 pr-14 sm:px-8 sm:py-7">
