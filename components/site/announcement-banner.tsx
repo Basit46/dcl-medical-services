@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
   Dialog,
   DialogClose,
@@ -64,6 +65,16 @@ export function AnnouncementBanner({
               </DialogTitle>
             </DialogHeader>
             <div className="px-6 py-6 sm:px-8">
+              {announcement.imageUrl && (
+                <Image
+                  src={announcement.imageUrl}
+                  alt={announcement.title}
+                  width={800}
+                  height={400}
+                  className="mx-auto mb-6 max-h-48 w-auto object-cover rounded-lg"
+                  style={{ objectFit: "cover", borderRadius: "0.5rem" }}
+                />
+              )}
               <DialogDescription className="text-[15px] leading-[1.8] text-primary-800">
                 {announcement.message}
               </DialogDescription>

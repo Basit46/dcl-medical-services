@@ -23,6 +23,13 @@ export const announcement = defineType({
       validation: (rule) => rule.max(300),
     }),
     defineField({
+      name: "image",
+      title: "Image (optional)",
+      description: "An image to show in the banner above the message.",
+      type: "image",
+      options: { hotspot: true },
+    }),
+    defineField({
       name: "active",
       title: "Show this announcement",
       type: "boolean",

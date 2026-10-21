@@ -5,6 +5,7 @@ export type SiteAnnouncement = {
   id: string;
   title: string;
   message: string;
+  imageUrl?: string;
   expiresAt: string | null;
 };
 
@@ -15,10 +16,11 @@ type SanityAnnouncement = {
   message?: string;
   active?: boolean;
   duration?: "24hours" | "3days" | "7days" | "1month" | "indefinite";
+  image?: { asset?: { _ref?: string }; url?: string };
 };
 
 const latestAnnouncementQuery = defineQuery(
-  `*[_type == "announcement"] | order(_createdAt desc)[0]{_id, _updatedAt, title, message, active, duration}`,
+  `*[_type == "announcement"] | order(_createdAt desc)[0]{_id, _updatedAt, title, message, active, duration, "image": image{ "url": asset->url }}`,
 );
 
 function getExpiry(
@@ -59,6 +61,7 @@ export async function getActiveAnnouncement(): Promise<SiteAnnouncement | null> 
       id: latest._id,
       title: latest.title.trim(),
       message: latest.message.trim(),
+      imageUrl: latest.image?.url ?? undefined,
       expiresAt,
     };
   } catch {
